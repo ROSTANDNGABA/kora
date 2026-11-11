@@ -161,7 +161,23 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # --- E-mail, SMS ------------------------------------------------------------
-EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+# SMTP : renseigner EMAIL_HOST (+ identifiants) active l'envoi réel des e-mails.
+# Sans EMAIL_HOST (dev, tests), les e-mails s'affichent dans la console.
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default=(
+        "django.core.mail.backends.smtp.EmailBackend"
+        if EMAIL_HOST
+        else "django.core.mail.backends.console.EmailBackend"
+    ),
+)
+EMAIL_PORT = env("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+if EMAIL_HOST:
+    EMAIL_TIMEOUT = 10  # ne pas bloquer une requête si le SMTP est lent
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Kora <no-reply@kora.cm>")
 SMS_BACKEND = env("SMS_BACKEND", default="console")
 SUPPORT_WHATSAPP = env("SUPPORT_WHATSAPP", default="")
