@@ -161,8 +161,11 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # --- E-mail, SMS ------------------------------------------------------------
-# SMTP : renseigner EMAIL_HOST (+ identifiants) active l'envoi réel des e-mails.
-# Sans EMAIL_HOST (dev, tests), les e-mails s'affichent dans la console.
+# Deux options d'envoi réel :
+#  1. API HTTP Brevo (recommandé sur Render gratuit : le SMTP sortant y est bloqué)
+#     EMAIL_BACKEND=apps.core.email_backends.BrevoEmailBackend + BREVO_API_KEY
+#  2. SMTP classique : renseigner EMAIL_HOST (+ identifiants).
+# Sans configuration (dev, tests), les e-mails s'affichent dans la console.
 EMAIL_HOST = env("EMAIL_HOST", default="")
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
@@ -178,6 +181,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 if EMAIL_HOST:
     EMAIL_TIMEOUT = 10  # ne pas bloquer une requête si le SMTP est lent
+BREVO_API_KEY = env("BREVO_API_KEY", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Kora <no-reply@kora.cm>")
 SMS_BACKEND = env("SMS_BACKEND", default="console")
 SUPPORT_WHATSAPP = env("SUPPORT_WHATSAPP", default="")

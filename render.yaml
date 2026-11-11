@@ -32,13 +32,17 @@ services:
         value: "localhost,127.0.0.1"
       - key: EMAIL_BACKEND
         value: "django.core.mail.backends.console.EmailBackend"
-      # Envoi réel des e-mails (OTP) : renseigner ces variables SMTP, par ex. Gmail.
+      # Envoi réel des e-mails (OTP). Render bloque le SMTP sortant en plan
+      # gratuit : utiliser l'API Brevo (port 443) — 300 e-mails/jour gratuits.
+      # EMAIL_BACKEND=apps.core.email_backends.BrevoEmailBackend
+      # BREVO_API_KEY=xkeysib-...
+      # DEFAULT_FROM_EMAIL=Kora <albertngaba@gmail.com>
+      # Alternative SMTP (Railway, local…) :
       # EMAIL_HOST=smtp.gmail.com
       # EMAIL_PORT=587
       # EMAIL_USE_TLS=True
       # EMAIL_HOST_USER=albertngaba@gmail.com
       # EMAIL_HOST_PASSWORD=secret (mot de passe d'application Google)
-      # DEFAULT_FROM_EMAIL=Kora <albertngaba@gmail.com>
       - key: SMS_BACKEND
         value: "console"
       - key: SEED_DEMO
