@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Connexion" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-md flex-col px-4 py-10 sm:py-16">
+  <div class="card p-6 sm:p-8">
+    <h1 class="text-2xl">{% trans "Connexion" %}</h1>
+    <p class="mt-1 text-sm text-kora-brown/70">{% trans "Entrez votre e-mail ou votre numéro de téléphone." %}</p>
+
+    <form method="post" class="mt-6 space-y-4" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+      {% include "components/form_field.html" with field=form.username %}
+      {% include "components/form_field.html" with field=form.password %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn-primary w-full">{% trans "Se connecter" %}</button>
+    </form>
+    <div class="mt-5 flex flex-col gap-2 text-sm sm:flex-row sm:justify-between">
+      <a href="{% url 'accounts:password_reset' %}" class="font-medium text-kora-orange-600 hover:underline">{% trans "Mot de passe oublié ?" %}</a>
+      <a href="{% url 'accounts:signup' %}" class="font-medium text-kora-orange-600 hover:underline">{% trans "Créer un compte" %}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

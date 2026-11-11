@@ -1,0 +1,48 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'fr' }}" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}Kora{% endblock %} · Kora</title>
+  <meta name="description" content="{% block meta_description %}{{ SITE_SLOGAN }} Trouvez, contactez et notez les artisans et prestataires de services au Cameroun.{% endblock %}">
+  <meta name="theme-color" content="#F36F21">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta name="robots" content="{% block robots %}index,follow{% endblock %}">
+  <meta property="og:site_name" content="Kora">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_CM">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:title" content="{% block og_title %}Kora{% endblock %}">
+  <meta property="og:description" content="{{ SITE_SLOGAN }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preload" href="{% static 'fonts/poppins-latin-500.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col" hx-headers='{"X-Requested-With": "XMLHttpRequest"}'>
+  <a href="#contenu" class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:shadow-pop">
+    {% trans "Aller au contenu" %}
+  </a>
+
+  {% block header %}{% include "partials/navbar.html" %}{% endblock %}
+
+  <main id="contenu" class="flex-1 {% block main_class %}pb-24 md:pb-0{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}{% include "partials/footer.html" %}{% endblock %}
+  {% block bottom_nav %}{% include "partials/bottom_nav.html" %}{% endblock %}
+
+  {% include "partials/toasts.html" %}
+
+  <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'vendor/lucide.min.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+  <script src="{% static 'vendor/alpine.min.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

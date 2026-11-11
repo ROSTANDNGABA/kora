@@ -1,0 +1,16 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% if member %}{% trans "Modifier un membre" %}{% else %}{% trans "Nouveau membre" %}{% endif %}{% endblock %}
+{% block page %}
+<div class="max-w-2xl"><a href="{% url 'dashboard_admin:team' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Équipe" %}</a>
+  <h1 class="mt-2 text-2xl sm:text-3xl">{% if member %}{{ member.email }}{% else %}{% trans "Nouveau membre de l'équipe" %}{% endif %}</h1>
+  <form method="post" class="card mt-6 space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+    {% include "components/form_field.html" with field=form.email %}
+    <div class="grid gap-5 sm:grid-cols-2">{% include "components/form_field.html" with field=form.first_name %}{% include "components/form_field.html" with field=form.last_name %}</div>
+    {% include "components/form_field.html" with field=form.password %}
+    <fieldset><legend class="label">{{ form.groups.label }}</legend>
+      <div class="space-y-2">{% for g in form.groups %}<label class="flex items-start gap-2 text-sm">{{ g.tag }}<span><strong>{{ g.choice_label }}</strong>{% for pk, mods in group_modules.items %}{% if pk|stringformat:"s" == g.data.value|stringformat:"s" and mods %}<br><span class="text-xs text-kora-brown/60">{{ mods|join:", " }}</span>{% endif %}{% endfor %}</span></label>{% endfor %}</div></fieldset>
+    {% include "components/form_field.html" with field=form.is_active %}
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><a href="{% url 'dashboard_admin:team' %}" class="btn-outline">{% trans "Annuler" %}</a><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+  </form></div>
+{% endblock %}

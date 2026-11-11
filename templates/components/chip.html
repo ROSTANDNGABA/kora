@@ -1,0 +1,5 @@
+{# Chip de filtre. Paramètres : label, href, active, icon (optionnel). Pour HTMX : hx_get et hx_target. #}
+<a href="{{ href|default:'#' }}" class="chip {% if active %}chip-active{% endif %}" {% if active %}aria-current="true"{% endif %}
+   {% if hx_get %}hx-get="{{ hx_get }}" hx-target="{{ hx_target }}" hx-push-url="true"{% endif %}>
+  {% if icon %}<i data-lucide="{{ icon }}" class="h-4 w-4"></i>{% endif %}{{ label }}
+</a>

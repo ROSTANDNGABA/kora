@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load i18n kora_ui %}
+{% comment %}Coquille commune des dashboards : sidebar repliable + topbar. La sidebar est brune pour l'administration.{% endcomment %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+{% with dark=user.is_admin_role %}
+{% if user.is_admin_role %}{% url 'dashboard_admin:search' as search_action %}{% trans "Rechercher un client, un prestataire…" as search_placeholder %}{% trans "Administration" as space_label %}
+{% else %}{% url 'dashboard_provider:requests' as search_action %}{% trans "Rechercher dans mes demandes…" as search_placeholder %}{% trans "Espace prestataire" as space_label %}{% endif %}
+<div class="min-h-screen lg:flex"
+     x-data="{ mobile: false, collapsed: false, init() { try { this.collapsed = localStorage.getItem('kora-sidebar') === '1'; } catch (e) {} this.$watch('collapsed', v => { try { localStorage.setItem('kora-sidebar', v ? '1' : '0'); } catch (e) {} }); } }"
+     @keydown.escape.window="mobile = false">
+  <div x-show="mobile" x-cloak x-transition.opacity class="fixed inset-0 z-40 bg-kora-brown/50 lg:hidden" @click="mobile = false"></div>
+
+  <aside class="fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 -translate-x-full flex-col transition-all duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 {% if dark %}bg-kora-brown text-white{% else %}border-r border-kora-brown/10 bg-white text-kora-brown{% endif %}"
+         :class="{ 'translate-x-0': mobile, 'lg:w-[4.75rem]': collapsed }" aria-label="{% trans 'Navigation du tableau de bord' %}">
+    <div class="flex h-16 shrink-0 items-center justify-between gap-2 px-4">
+      <a href="{% block home_url %}/{% endblock %}" class="flex items-center gap-2" aria-label="Kora">
+        {% include "components/logo.html" with light=dark %}
+      </a>
+      <button type="button" class="rounded-lg p-1.5 lg:hidden" @click="mobile = false" aria-label="{% trans 'Fermer le menu' %}"><i data-lucide="x" class="h-5 w-5"></i></button>
+    </div>
+
+    <div class="mx-3 mb-3 flex items-center gap-3 rounded-2xl p-3 {% if dark %}bg-white/10{% else %}bg-kora-cream{% endif %}">
+      {% block sidebar_identity %}{% endblock %}
+    </div>
+
+    <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4" aria-label="{{ space_label }}">
+      {% block sidebar_nav %}{% endblock %}
+    </nav>
+    <div class="hidden border-t p-3 lg:block {% if dark %}border-white/10{% else %}border-kora-brown/10{% endif %}">
+      <button type="button" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium {% if dark %}hover:bg-white/10{% else %}hover:bg-kora-orange-100{% endif %}" @click="collapsed = !collapsed" :aria-expanded="!collapsed">
+        <i data-lucide="panel-left-close" class="h-5 w-5 shrink-0" x-show="!collapsed"></i><i data-lucide="panel-left-open" class="h-5 w-5 shrink-0" x-show="collapsed" x-cloak></i>
+        <span x-show="!collapsed">{% trans "Réduire le menu" %}</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-kora-brown/10 bg-white/90 px-4 backdrop-blur sm:px-6">
+      <button type="button" class="rounded-xl p-2 hover:bg-kora-orange-100 lg:hidden" @click="mobile = true" aria-label="{% trans 'Ouvrir le menu' %}"><i data-lucide="menu" class="h-5 w-5"></i></button>
+      {% if search_action %}
+      <form action="{{ search_action }}" method="get" role="search" class="hidden max-w-md flex-1 sm:block">
+        <label class="relative block"><span class="sr-only">{{ search_placeholder }}</span>
+          <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-kora-brown/40"></i>
+          <input type="search" name="q" value="{{ request.GET.q }}" placeholder="{{ search_placeholder }}" class="input py-2 pl-9">
+        </label>
+      </form>
+      {% endif %}
+      <div class="ml-auto flex items-center gap-1">
+        {% block topbar_extra %}{% endblock %}
+        <a href="{% url 'messaging:inbox' %}" class="relative rounded-xl p-2 hover:bg-kora-orange-100" aria-label="{% trans 'Messages' %}"><i data-lucide="message-circle" class="h-5 w-5"></i>
+          {% if unread_messages %}<span class="badge-notif">{{ unread_messages }}</span>{% endif %}</a>
+        <a href="{% url 'notifications:list' %}" class="relative rounded-xl p-2 hover:bg-kora-orange-100" aria-label="{% trans 'Notifications' %}"><i data-lucide="bell" class="h-5 w-5"></i>
+          {% if unread_notifications %}<span class="badge-notif">{{ unread_notifications }}</span>{% endif %}</a>
+        <div class="relative" x-data="{ menu: false }" @click.outside="menu = false" @keydown.escape="menu = false">
+          <button type="button" class="flex items-center gap-2 rounded-xl p-1.5 hover:bg-kora-orange-100" @click="menu = !menu" :aria-expanded="menu" aria-haspopup="true">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-kora-orange text-xs font-bold text-white">{{ user.get_full_name|default:user.email|initials }}</span>
+            <i data-lucide="chevron-down" class="hidden h-4 w-4 sm:block"></i>
+          </button>
+          <div x-show="menu" x-cloak x-transition class="absolute right-0 mt-2 w-56 rounded-2xl bg-white p-2 shadow-pop ring-1 ring-kora-brown/10">
+            <p class="truncate px-3 py-2 text-xs text-kora-brown/60">{{ user.email }}</p>
+            {% block profile_menu %}{% endblock %}
+            <a href="{% url 'core:home' %}" class="block rounded-xl px-3 py-2 text-sm hover:bg-kora-orange-100">{% trans "Voir le site" %}</a>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50">{% trans "Déconnexion" %}</button></form>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="page" class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      {% block page %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endwith %}
+{% endblock %}

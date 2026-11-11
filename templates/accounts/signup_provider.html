@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Inscription artisan" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+  <div class="card p-6 sm:p-8">
+    <h1 class="text-2xl">{% trans "Créer mon compte artisan" %}</h1>
+    <p class="mt-1 text-sm text-kora-brown/70">{% trans "Votre profil sera visible après validation par l'équipe Kora." %}</p>
+    <form method="post" class="mt-6 space-y-6" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+
+      <fieldset class="space-y-4">
+        <legend class="mb-2 text-sm font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Vous" %}</legend>
+        <div class="grid gap-4 sm:grid-cols-2">
+          {% include "components/form_field.html" with field=form.first_name %}
+          {% include "components/form_field.html" with field=form.last_name %}
+        </div>
+        {% include "components/form_field.html" with field=form.email %}
+        {% include "components/form_field.html" with field=form.whatsapp %}
+      </fieldset>
+
+      <fieldset class="space-y-4">
+        <legend class="mb-2 text-sm font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Votre activité" %}</legend>
+        {% include "components/form_field.html" with field=form.business_name %}
+        <div class="grid gap-4 sm:grid-cols-2">
+          {% include "components/form_field.html" with field=form.activity_type %}
+          {% include "components/form_field.html" with field=form.city %}
+        </div>
+        <div>
+          <label class="label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+          <select name="{{ form.category.html_name }}" id="{{ form.category.id_for_label }}" class="input" required
+                  hx-get="{% url 'accounts:subcategories' %}" hx-trigger="change" hx-target="#subcategory-box" hx-swap="innerHTML">
+            {% for value, label in form.category.field.choices %}
+              <option value="{{ value }}" {% if form.category.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% for e in form.category.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+        </div>
+        <div>
+          <span class="label">{{ form.subcategories.label }}</span>
+          <div id="subcategory-box" aria-live="polite">{% include "accounts/partials/subcategory_options.html" %}</div>
+          {% for e in form.subcategories.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-4">
+        <legend class="mb-2 text-sm font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Sécurité" %}</legend>
+        {% include "components/form_field.html" with field=form.password1 %}
+        {% include "components/form_field.html" with field=form.password2 %}
+        {% include "components/form_field.html" with field=form.accept_terms %}
+      </fieldset>
+
+      <button type="submit" class="btn-secondary w-full">{% trans "Créer mon compte artisan" %}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

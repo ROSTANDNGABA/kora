@@ -1,0 +1,28 @@
+{% load kora_ui favorites_ui %}
+{% comment %}
+Carte prestataire. Paramètres : p (ProviderProfile avec category, city et subcategories préchargés),
+contact_url (optionnel). Le cœur des favoris s'affiche seul selon le visiteur.
+{% endcomment %}
+<article class="card card-hover relative flex gap-4 p-4">
+  {% if p.logo %}
+    <img src="{{ p.logo.url }}" alt="Photo de {{ p.business_name }}" class="h-20 w-20 shrink-0 rounded-2xl object-cover" loading="lazy" width="80" height="80">
+  {% else %}
+    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl text-xl font-bold text-white" style="background: linear-gradient(135deg, {{ p.category.color|default:'#F36F21' }}, #F5B800)" role="img" aria-label="Avatar de {{ p.business_name }}">{{ p.business_name|initials }}</div>
+  {% endif %}
+  <div class="min-w-0 flex-1">
+    <div class="flex items-start justify-between gap-2">
+      <h3 class="line-clamp-2 text-base">{% with url=p.get_absolute_url %}{% if url %}<a href="{{ url }}" class="after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-kora-orange">{{ p.business_name }}</a>{% else %}{{ p.business_name }}{% endif %}{% endwith %}{% if p.is_verified %} {% include "components/verified_badge.html" %}{% endif %}</h3>
+      {% heart_button p %}
+    </div>
+    <p class="text-sm text-kora-brown/70">{{ p.main_trade }}</p>
+    <p class="mt-0.5 flex items-center gap-1 text-xs text-kora-brown/60"><i data-lucide="map-pin" class="h-3.5 w-3.5"></i>{{ p.city.name }}</p>
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+      {% if p.reviews_count %}
+        {% include "components/stars.html" with rating=p.rating_avg reviews=p.reviews_count %}
+      {% else %}
+        <span class="badge-gray">Nouveau</span>
+      {% endif %}
+      {% if contact_url %}<a href="{{ contact_url }}" class="btn-primary btn-sm relative z-10">Contacter</a>{% endif %}
+    </div>
+  </div>
+</article>

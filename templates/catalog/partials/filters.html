@@ -1,0 +1,74 @@
+{% load i18n %}
+{% comment %}
+Panneau de filtres. Les changements déclenchent une requête HTMX qui remplace #results ;
+sans JavaScript le formulaire reste un simple GET. Paramètres : filters, cities, action_url, grouped_subcategories (recherche), subcategories (catégorie).
+{% endcomment %}
+<form id="filters" method="get" action="{{ action_url }}" class="space-y-5"
+      hx-get="{{ action_url }}" hx-target="#results" hx-push-url="true" hx-indicator="#results" hx-swap="innerHTML"
+      hx-trigger="change, submit, keyup changed delay:500ms from:#f-q">
+  {% if grouped_subcategories %}
+  <div>
+    <label class="label" for="f-q">{% trans "Métier ou service" %}</label>
+    <input id="f-q" type="search" name="q" value="{{ filters.q }}" maxlength="120" class="input" autocomplete="off" list="metiers" placeholder="{% trans 'Plombier, couturière…' %}">
+    <datalist id="metiers">{% for s in suggestions %}<option value="{{ s }}">{% endfor %}</datalist>
+  </div>
+  {% endif %}
+  <div>
+    <label class="label" for="f-ville">{% trans "Ville" %}</label>
+    <select id="f-ville" name="ville" class="input">
+      <option value="">{% trans "Toutes les villes" %}</option>
+      {% for c in cities %}<option value="{{ c.slug }}" {% if filters.city and filters.city.pk == c.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  {% if grouped_subcategories %}
+  <div>
+    <label class="label" for="f-cat">{% trans "Catégorie" %}</label>
+    <select id="f-cat" name="categorie" class="input">
+      <option value="">{% trans "Toutes les catégories" %}</option>
+      {% for c in categories %}<option value="{{ c.slug }}" {% if filters.category and filters.category.pk == c.pk and not filters.subcategory %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="label" for="f-spec">{% trans "Spécialité" %}</label>
+    <select id="f-spec" name="specialite" class="input">
+      <option value="">{% trans "Toutes les spécialités" %}</option>
+      {% for c, subs in grouped_subcategories %}{% if subs %}
+        <optgroup label="{{ c.name }}">{% for s in subs %}<option value="{{ s.slug }}" {% if filters.subcategory and filters.subcategory.pk == s.pk %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</optgroup>
+      {% endif %}{% endfor %}
+    </select>
+  </div>
+  {% elif subcategories %}
+  <div>
+    <label class="label" for="f-spec">{% trans "Spécialité" %}</label>
+    <select id="f-spec" name="specialite" class="input">
+      <option value="">{% trans "Toutes les spécialités" %}</option>
+      {% for s in subcategories %}<option value="{{ s.slug }}" {% if filters.subcategory and filters.subcategory.pk == s.pk %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+  </div>
+  {% endif %}
+  <fieldset>
+    <legend class="label">{% trans "Note minimale" %}</legend>
+    <div class="flex flex-wrap gap-2">
+      <label class="chip cursor-pointer has-[:checked]:border-kora-orange has-[:checked]:bg-kora-orange has-[:checked]:text-white"><input type="radio" name="note" value="" class="sr-only" {% if not filters.min_rating %}checked{% endif %}>{% trans "Toutes" %}</label>
+      {% for n in min_ratings %}
+      <label class="chip cursor-pointer has-[:checked]:border-kora-orange has-[:checked]:bg-kora-orange has-[:checked]:text-white"><input type="radio" name="note" value="{{ n }}" class="sr-only" {% if filters.min_rating == n %}checked{% endif %}>{{ n }}+ ★</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  <div>
+    <label class="label" for="f-prix">{% trans "Budget maximum (FCFA)" %}</label>
+    <input id="f-prix" type="number" name="prix_max" min="1" step="500" value="{{ filters.max_price|default_if_none:'' }}" class="input" placeholder="{% trans 'ex. 15000' %}">
+    <p class="help-text">{% trans "Prestataires ayant au moins un service à ce prix ou moins." %}</p>
+  </div>
+  <label class="flex items-center gap-2 text-sm font-medium"><input type="checkbox" name="verifie" value="1" class="h-4 w-4 rounded accent-kora-orange" {% if filters.verified %}checked{% endif %}>{% trans "Prestataires vérifiés uniquement" %}</label>
+  <div>
+    <label class="label" for="f-tri">{% trans "Trier par" %}</label>
+    <select id="f-tri" name="tri" class="input">
+      {% for key, label in sort_labels.items %}<option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{% trans label %}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="flex gap-2">
+    <button type="submit" class="btn-primary flex-1">{% trans "Appliquer" %}</button>
+    <a href="{{ action_url }}" class="btn-outline" hx-get="{{ action_url }}" hx-target="#results" hx-push-url="true" hx-on::after-request="document.getElementById('filters').reset()">{% trans "Réinitialiser" %}</a>
+  </div>
+</form>

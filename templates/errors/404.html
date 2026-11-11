@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Page introuvable" %}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-xl px-4 py-20 text-center">
+  <p class="text-6xl font-extrabold text-kora-orange">404</p>
+  <h1 class="mt-2 text-2xl">{% trans "Page introuvable" %}</h1>
+  <p class="mt-2 text-kora-brown/70">{% trans "Cette page n'existe pas ou a été déplacée." %}</p>
+  <a href="{% url 'core:home' %}" class="btn-primary mt-6">{% trans "Retour à l'accueil" %}</a>
+</div>
+{% endblock %}

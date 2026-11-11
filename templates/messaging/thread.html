@@ -1,0 +1,40 @@
+{% extends layout %}
+{% load i18n kora_ui %}
+{% block title %}{{ other_name }}{% endblock %}
+{% block page %}
+<a href="{% url 'messaging:inbox' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Messages" %}</a>
+<div class="mt-2 flex items-center justify-between gap-3">
+  <h1 class="truncate text-xl sm:text-2xl">{{ other_name }}</h1>
+  <div class="flex shrink-0 items-center gap-3 text-sm">
+    {% if user.is_client %}<a href="{{ conversation.provider.get_absolute_url }}" class="font-semibold text-kora-orange-600 hover:underline">{% trans "Voir la fiche" %}</a>{% endif %}
+    {% if can_report %}<a href="{% url 'reviews:report' 'conversation' conversation.pk %}" class="text-kora-brown/50 hover:underline">{% trans "Signaler" %}</a>{% endif %}
+  </div>
+</div>
+
+<div id="thread" class="mt-4 max-h-[60vh] min-h-[16rem] space-y-3 overflow-y-auto rounded-2xl bg-kora-cream p-4 ring-1 ring-kora-brown/10"
+     hx-get="{% url 'messaging:thread_fragment' conversation.pk %}" hx-trigger="every 10s" hx-swap="innerHTML"
+     hx-on::after-swap="this.scrollTop = this.scrollHeight" tabindex="0" aria-label="{% trans 'Fil de discussion' %}" aria-live="polite">
+  {% include "messaging/partials/thread_messages.html" %}
+</div>
+<script>(function () { var t = document.getElementById("thread"); if (t) t.scrollTop = t.scrollHeight; })();</script>
+
+{% if can_send %}
+<form method="post" enctype="multipart/form-data" class="mt-4 space-y-2" novalidate x-data="{ file: '' }">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="field-error" role="alert">{{ form.non_field_errors.0 }}</p>{% endif %}
+  {% for e in form.body.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+  {% for e in form.attachment.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+  <div class="flex items-end gap-2">
+    <label class="btn-outline cursor-pointer px-3" title="{% trans 'Joindre une image' %}">
+      <i data-lucide="paperclip" class="h-5 w-5"></i><span class="sr-only">{% trans "Joindre une image" %}</span>
+      <input type="file" name="attachment" accept="image/*" class="sr-only" @change="file = $event.target.files[0] ? $event.target.files[0].name : ''">
+    </label>
+    <div class="flex-1"><label for="id_body" class="sr-only">{% trans "Message" %}</label>{{ form.body }}</div>
+    <button type="submit" class="btn-primary"><i data-lucide="send" class="h-4 w-4"></i><span class="hidden sm:inline">{% trans "Envoyer" %}</span></button>
+  </div>
+  <p class="text-xs text-kora-brown/60" x-show="file" x-cloak>{% trans "Image jointe :" %} <span x-text="file"></span></p>
+</form>
+{% else %}
+<p class="mt-4 rounded-2xl bg-kora-yellow-100 p-4 text-sm font-medium">{% trans "Cette conversation n'accepte plus de nouveaux messages." %}</p>
+{% endif %}
+{% endblock %}

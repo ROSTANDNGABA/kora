@@ -1,0 +1,19 @@
+{% load i18n %}
+<section id="categories" class="scroll-mt-20 px-4 py-14 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-8 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+      <div>
+        <h2 class="text-2xl sm:text-3xl">{% trans "Quel métier cherchez-vous ?" %}</h2>
+        <p class="mt-1 text-kora-brown/70">{% trans "Dix catégories, chacune avec ses spécialités." %}</p>
+      </div>
+      <a href="{% url 'catalog:search' %}" class="text-sm font-semibold text-kora-orange-600 hover:underline">{% trans "Voir tous les prestataires" %} &rarr;</a>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
+      {% for c in categories %}
+        <div data-reveal style="--d: {{ forloop.counter0 }}">
+          {% include "components/category_card.html" with name=c.name icon=c.icon color=c.color href=c.get_absolute_url %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

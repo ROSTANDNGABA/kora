@@ -1,0 +1,35 @@
+{% extends layout %}
+{% load i18n %}
+{% block title %}{% trans "Notifications" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl sm:text-3xl">{% trans "Notifications" %}</h1>
+  <form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}<button type="submit" class="btn-outline btn-sm"><i data-lucide="check-check" class="h-4 w-4"></i>{% trans "Tout marquer comme lu" %}</button></form>
+</div>
+<nav class="mt-4 flex gap-2" aria-label="{% trans 'Filtrer' %}">
+  <a href="{% url 'notifications:list' %}" class="chip {% if not only_unread %}chip-active{% endif %}">{% trans "Toutes" %}</a>
+  <a href="?filtre=non-lues" class="chip {% if only_unread %}chip-active{% endif %}">{% trans "Non lues" %}</a>
+</nav>
+{% if page_obj %}
+<ul class="mt-5 space-y-2">
+  {% for n in page_obj %}
+  <li>
+    <form method="post" action="{% url 'notifications:open' n.pk %}">{% csrf_token %}
+      <button type="submit" class="card card-hover flex w-full items-start gap-3 p-4 text-left {% if not n.is_read %}ring-2 ring-kora-orange/30{% endif %}">
+        <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {% if n.is_read %}bg-kora-brown/20{% else %}bg-kora-orange{% endif %}" aria-hidden="true"></span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-sm {% if not n.is_read %}font-bold{% else %}font-medium{% endif %}">{{ n.title }}</span>
+          {% if n.body %}<span class="mt-0.5 block truncate text-sm text-kora-brown/70">{{ n.body }}</span>{% endif %}
+          <span class="mt-1 block text-xs text-kora-brown/50">{{ n.created_at|date:"j F Y, H:i" }}</span>
+        </span>
+        {% if not n.is_read %}<span class="sr-only">{% trans "Non lue" %}</span>{% endif %}
+      </button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% include "components/pagination.html" %}
+{% else %}
+<div class="mt-5">{% include "components/empty_state.html" with icon="bell" title="Aucune notification" text="Les mises à jour de vos demandes, messages et avis apparaîtront ici." %}</div>
+{% endif %}
+{% endblock %}

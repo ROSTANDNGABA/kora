@@ -1,0 +1,21 @@
+{% comment %}
+Modale de confirmation (Alpine). Utilisation :
+   <div x-data="{ open: false }"> <button @click="open = true">…</button>
+     {% include "components/modal.html" with title="…" text="…" confirm_label="Supprimer" form_action=url danger=True %} </div>
+   open_var : nom de la variable Alpine (défaut « open »). La confirmation soumet un formulaire POST protégé par CSRF.
+{% endcomment %}
+{% with v=open_var|default:"open" %}
+<div x-show="{{ v }}" x-cloak class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="modal-title" @keydown.escape.window="{{ v }} = false">
+  <div class="absolute inset-0 bg-kora-brown/50 backdrop-blur-sm" x-show="{{ v }}" x-transition.opacity @click="{{ v }} = false"></div>
+  <div x-show="{{ v }}" x-transition class="relative w-full max-w-md rounded-t-3xl bg-white p-6 shadow-pop sm:rounded-3xl">
+    <h2 id="modal-title" class="text-lg">{{ title }}</h2>
+    {% if text %}<p class="mt-2 text-sm text-kora-brown/70">{{ text }}</p>{% endif %}
+    <form method="post" action="{{ form_action }}" class="mt-6 flex justify-end gap-2">
+      {% csrf_token %}
+      {{ extra_fields }}
+      <button type="button" class="btn-outline" @click="{{ v }} = false">Annuler</button>
+      <button type="submit" class="{% if danger %}btn-danger{% else %}btn-primary{% endif %}">{{ confirm_label|default:"Confirmer" }}</button>
+    </form>
+  </div>
+</div>
+{% endwith %}

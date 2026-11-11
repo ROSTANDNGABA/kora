@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% trans "Trouvez un artisan au Cameroun" %}{% endblock %}
+{% block og_title %}Kora : {{ SITE_SLOGAN }}{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Organization","name":"Kora","slogan":"{{ SITE_SLOGAN }}","url":"{{ request.scheme }}://{{ request.get_host }}/","logo":"{{ request.scheme }}://{{ request.get_host }}{% static 'img/favicon.svg' %}"},
+ {"@type":"WebSite","name":"Kora","url":"{{ request.scheme }}://{{ request.get_host }}/","inLanguage":"fr",
+  "potentialAction":{"@type":"SearchAction","target":"{{ request.scheme }}://{{ request.get_host }}{% url 'catalog:search' %}?q={search_term_string}","query-input":"required name=search_term_string"}}
+]}
+</script>
+{% endblock %}
+
+{% block content %}
+{% if banners %}
+<section class="bg-kora-brown text-white" aria-label="{% trans 'Annonces' %}">
+  <ul class="mx-auto flex max-w-7xl flex-col divide-y divide-white/10 px-4 sm:px-6 lg:px-8">
+    {% for b in banners %}
+    <li class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+      <p class="min-w-0"><strong>{{ b.title }}</strong>{% if b.subtitle %} <span class="text-white/70">{{ b.subtitle }}</span>{% endif %}</p>
+      {% if b.link_url %}<a href="{{ b.link_url }}" class="btn-primary btn-sm shrink-0">{{ b.link_label|default:_("Découvrir") }}</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% include "core/landing/_hero.html" %}
+{% include "core/landing/_categories.html" %}
+{% include "core/landing/_stats.html" %}
+{% include "core/landing/_how.html" %}
+{% include "core/landing/_featured.html" %}
+{% include "core/landing/_cities.html" %}
+{% include "core/landing/_audiences.html" %}
+{% include "core/landing/_testimonials.html" %}
+{% include "core/landing/_faq.html" %}
+{% include "core/landing/_join.html" %}
+{% endblock %}

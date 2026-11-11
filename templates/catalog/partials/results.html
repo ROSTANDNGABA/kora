@@ -1,0 +1,41 @@
+{% load i18n kora_ui %}
+<div id="results-inner" aria-live="polite">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-sm text-kora-brown/70">
+      {% blocktrans count n=page_obj.paginator.count %}{{ n }} prestataire trouvé{% plural %}{{ n }} prestataires trouvés{% endblocktrans %}
+      {% if filters.q %}{% blocktrans with q=filters.q %}pour « {{ q }} »{% endblocktrans %}{% endif %}{% if filters.city %} · {{ filters.city.name }}{% endif %}
+    </p>
+    {% if has_filters %}
+      {% if user.is_authenticated and user.is_client %}
+        {% if search_saved %}
+          <span class="badge-green"><i data-lucide="check" class="h-3.5 w-3.5"></i>{% trans "Recherche enregistrée" %}</span>
+        {% else %}
+          <form method="post" action="{% url 'favorites:save_search' %}" hx-post="{% url 'favorites:save_search' %}" hx-target="this" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="hidden" name="query_string" value="{{ filters.query_string }}">
+            <input type="hidden" name="label" value="{{ filters.label }}">
+            <button type="submit" class="btn-outline btn-sm"><i data-lucide="bookmark-plus" class="h-4 w-4"></i>{% trans "Enregistrer cette recherche" %}</button>
+          </form>
+        {% endif %}
+      {% elif not user.is_authenticated %}
+        <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="btn-outline btn-sm"><i data-lucide="bookmark-plus" class="h-4 w-4"></i>{% trans "Se connecter pour enregistrer" %}</a>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if results %}
+    <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {% for p in results %}{% include "components/provider_card.html" with p=p link=True %}{% endfor %}
+    </div>
+    {% include "components/pagination.html" with hx_target="#results" %}
+  {% else %}
+    <div class="mt-4">
+      {% include "components/empty_state.html" with icon="search-x" title="Aucun résultat" text="Essayez un autre métier, élargissez la ville ou retirez des filtres." cta_label="Voir tous les prestataires" cta_url=action_url %}
+    </div>
+    {% if categories %}
+    <div class="mt-6 flex flex-wrap gap-2">
+      {% for c in categories %}{% include "components/chip.html" with label=c.name href=c.get_absolute_url icon=c.icon %}{% endfor %}
+    </div>
+    {% endif %}
+  {% endif %}
+</div>

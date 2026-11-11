@@ -1,0 +1,38 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Portfolio" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Portfolio" %}</h1>
+<p class="mt-1 text-sm text-kora-brown/70">{% blocktrans with n=items|length max=limit %}{{ n }} photo(s) sur {{ max }} possibles. Les images sont réduites automatiquement pour charger vite.{% endblocktrans %}</p>
+<form method="post" enctype="multipart/form-data" class="card mt-5 max-w-2xl space-y-3 p-5" novalidate>
+  {% csrf_token %}
+  <label class="label" for="{{ form.images.id_for_label }}">{{ form.images.label }}</label>
+  <input type="file" name="images" id="{{ form.images.id_for_label }}" accept="image/*" multiple required class="block w-full text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-kora-orange-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-kora-orange-700">
+  <p class="help-text">{{ form.images.help_text }}</p>
+  {% for e in form.images.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+  <button type="submit" class="btn-primary">{% trans "Envoyer les photos" %}</button>
+</form>
+{% if items %}
+<ul class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  {% for m in items %}
+  <li class="card overflow-hidden">
+    <img src="{{ m.image.url }}" alt="{{ m.caption|default:'Photo du portfolio' }}" class="aspect-[4/3] w-full object-cover" loading="lazy">
+    <div class="space-y-3 p-4">
+      <form method="post" action="{% url 'dashboard_provider:portfolio_caption' m.pk %}" class="flex gap-2">{% csrf_token %}
+        <label class="sr-only" for="cap-{{ m.pk }}">{% trans "Légende" %}</label>
+        <input id="cap-{{ m.pk }}" name="caption" value="{{ m.caption }}" maxlength="160" class="input py-2" placeholder="{% trans 'Légende (facultatif)' %}">
+        <button type="submit" class="btn-outline btn-sm">{% trans "OK" %}</button></form>
+      <div class="flex items-center justify-between" x-data="{ open: false }">
+        <div class="flex gap-1">
+          {% if not forloop.first %}<form method="post" action="{% url 'dashboard_provider:portfolio_move' m.pk 'haut' %}">{% csrf_token %}<button class="btn-ghost btn-sm" aria-label="{% trans 'Monter' %}"><i data-lucide="arrow-left" class="h-4 w-4"></i></button></form>{% endif %}
+          {% if not forloop.last %}<form method="post" action="{% url 'dashboard_provider:portfolio_move' m.pk 'bas' %}">{% csrf_token %}<button class="btn-ghost btn-sm" aria-label="{% trans 'Descendre' %}"><i data-lucide="arrow-right" class="h-4 w-4"></i></button></form>{% endif %}
+        </div>
+        <button type="button" class="btn-ghost btn-sm text-red-600 hover:bg-red-50" @click="open = true"><i data-lucide="trash-2" class="h-4 w-4"></i>{% trans "Supprimer" %}</button>
+        {% url 'dashboard_provider:portfolio_delete' m.pk as del_url %}{% include "components/modal.html" with title="Supprimer cette photo ?" text="Elle disparaîtra de votre fiche publique." confirm_label="Supprimer" form_action=del_url danger=True %}
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="images" title="Aucune photo" text="Montrez vos réalisations : les fiches avec photos reçoivent beaucoup plus de demandes." %}</div>{% endif %}
+{% endblock %}

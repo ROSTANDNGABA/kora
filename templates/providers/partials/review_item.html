@@ -1,0 +1,24 @@
+{% load i18n kora_ui %}
+{# Un avis public. Paramètres : review. Le nom de famille n'est jamais affiché. #}
+<article class="py-5" id="avis-{{ review.pk }}">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-full bg-kora-orange-100 text-sm font-bold text-kora-orange-700" aria-hidden="true">{{ review.client.public_name|initials }}</span>
+      <div>
+        <p class="text-sm font-semibold">{{ review.client.public_name }}</p>
+        <p class="text-xs text-kora-brown/60"><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"j F Y" }}</time></p>
+      </div>
+    </div>
+    {% include "components/stars.html" with rating=review.rating %}
+  </div>
+  {% if review.comment %}<p class="mt-3 whitespace-pre-line text-sm leading-relaxed">{{ review.comment }}</p>{% endif %}
+  {% if review.provider_reply %}
+    <div class="mt-3 rounded-xl bg-kora-cream p-3 text-sm">
+      <p class="font-semibold">{% blocktrans with name=provider.business_name %}Réponse de {{ name }}{% endblocktrans %}</p>
+      <p class="mt-1 whitespace-pre-line">{{ review.provider_reply }}</p>
+    </div>
+  {% endif %}
+  {% if user.is_authenticated and user != review.client and not user.is_admin_role %}
+    <p class="mt-2"><a href="{% url 'reviews:report' 'review' review.pk %}" class="text-xs text-kora-brown/50 hover:text-kora-orange-600 hover:underline">{% trans "Signaler cet avis" %}</a></p>
+  {% endif %}
+</article>

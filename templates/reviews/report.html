@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Signaler" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-xl px-4 py-8 sm:px-6">
+  <h1 class="text-2xl sm:text-3xl">{% if target_type == "PROVIDER" %}{% trans "Signaler ce profil" %}{% elif target_type == "CONVERSATION" %}{% trans "Signaler cette conversation" %}{% else %}{% trans "Signaler cet avis" %}{% endif %}</h1>
+  <p class="mt-1 text-sm text-kora-brown/70">
+    {% if target_type == "PROVIDER" %}{{ target.business_name }}{% elif target_type == "CONVERSATION" %}{% trans "Conversation avec" %} {{ target.provider.business_name }}{% else %}{% blocktrans with name=target.client.public_name %}Avis de {{ name }} sur {{ target.provider.business_name }}{% endblocktrans %}{% endif %}
+    . {% trans "Notre équipe examine chaque signalement." %}
+  </p>
+  <form method="post" class="card mt-6 space-y-5 p-5 sm:p-7" novalidate>
+    {% csrf_token %}
+    {% include "components/form_field.html" with field=form.reason %}
+    {% include "components/form_field.html" with field=form.details %}
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <a href="{% if target_type == 'CONVERSATION' %}{% url 'messaging:thread' target.pk %}{% elif target_type == 'PROVIDER' %}{{ target.get_absolute_url }}{% else %}{{ target.provider.get_absolute_url }}#avis{% endif %}" class="btn-outline">{% trans "Annuler" %}</a>
+      <button type="submit" class="btn-primary">{% trans "Envoyer le signalement" %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

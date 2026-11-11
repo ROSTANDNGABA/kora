@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %}
+Barre de recherche métier + ville. Paramètres : q, city (objet City ou vide), cities, suggestions, big (grande version du hero).
+{% endcomment %}
+<form action="{% url 'catalog:search' %}" method="get" role="search" class="flex w-full flex-col gap-2 rounded-2xl bg-white p-2 shadow-card sm:flex-row {% if big %}sm:rounded-full sm:p-2.5{% endif %}">
+  <label class="relative flex-1">
+    <span class="sr-only">{% trans "Métier ou service" %}</span>
+    <i data-lucide="search" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-kora-brown/40"></i>
+    <input type="search" name="q" value="{{ q|default:'' }}" list="metiers" maxlength="120" autocomplete="off"
+           placeholder="{% trans 'Plombier, couturière, électricien…' %}"
+           class="w-full rounded-xl border-0 bg-transparent py-3 pl-12 pr-3 text-sm text-kora-brown placeholder:text-kora-brown/40 focus:ring-2 focus:ring-kora-orange sm:rounded-full {% if big %}sm:py-4 sm:text-base{% endif %}">
+    <datalist id="metiers">{% for s in suggestions %}<option value="{{ s }}">{% endfor %}</datalist>
+  </label>
+  <label class="relative sm:w-56">
+    <span class="sr-only">{% trans "Ville" %}</span>
+    <i data-lucide="map-pin" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-kora-brown/40"></i>
+    <select name="ville" class="w-full rounded-xl border-0 bg-kora-cream py-3 pl-12 pr-8 text-sm text-kora-brown focus:ring-2 focus:ring-kora-orange sm:rounded-full {% if big %}sm:py-4 sm:text-base{% endif %}">
+      <option value="">{% trans "Toutes les villes" %}</option>
+      {% for c in cities %}<option value="{{ c.slug }}" {% if city and city.pk == c.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit" class="btn-primary {% if big %}sm:rounded-full sm:px-8 sm:text-base{% endif %}">{% trans "Rechercher" %}</button>
+</form>

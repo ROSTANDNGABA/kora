@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load i18n kora_ui favorites_ui %}
+{% block title %}{{ provider.business_name }} · {{ provider.main_trade }}, {{ provider.city.name }}{% endblock %}
+{% block og_title %}{{ provider.business_name }} · {{ provider.main_trade }} à {{ provider.city.name }}{% endblock %}
+{% block meta_description %}{{ provider.main_trade }} à {{ provider.city.name }}. {{ provider.description|truncatechars:140 }}{% endblock %}
+{% block robots %}{% if is_preview %}noindex,nofollow{% else %}index,follow{% endif %}{% endblock %}
+
+{% block extra_head %}
+{% if not is_preview %}
+<script type="application/ld+json">{{ json_ld|safe }}</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8" x-data="{ lightbox: null }">
+  <nav class="mb-4 text-sm text-kora-brown/60" aria-label="{% trans 'Fil d’Ariane' %}">
+    <a href="{% url 'core:home' %}" class="hover:underline">{% trans "Accueil" %}</a> /
+    <a href="{{ provider.category.get_absolute_url }}" class="hover:underline">{{ provider.category.name }}</a> /
+    <span aria-current="page">{{ provider.business_name }}</span>
+  </nav>
+
+  {% if is_preview %}
+    <div class="mb-4 rounded-2xl bg-kora-yellow-100 p-4 text-sm font-medium" role="status">
+      {% trans "Aperçu : cette fiche n'est pas visible du public pour le moment (statut :" %} {{ provider.get_status_display }}).
+    </div>
+  {% endif %}
+
+  <header class="card p-5 sm:p-7">
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+      {% if provider.logo %}
+        <img src="{{ provider.logo.url }}" alt="{% blocktrans with name=provider.business_name %}Photo de {{ name }}{% endblocktrans %}" class="h-28 w-28 shrink-0 rounded-3xl object-cover" width="112" height="112">
+      {% else %}
+        <div class="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl text-3xl font-bold text-white" style="background: linear-gradient(135deg, {{ provider.category.color|default:'#F36F21' }}, #F5B800)" role="img" aria-label="{% blocktrans with name=provider.business_name %}Avatar de {{ name }}{% endblocktrans %}">{{ provider.business_name|initials }}</div>
+      {% endif %}
+      <div class="min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-3">
+          <h1 class="text-2xl sm:text-3xl">{{ provider.business_name }}{% if provider.is_verified %} {% include "components/verified_badge.html" %}{% endif %}</h1>
+          <div class="flex shrink-0 items-center gap-1">
+            {% heart_button provider %}
+            <button type="button" class="rounded-full p-1.5 text-kora-brown/60 hover:text-kora-orange-600" aria-label="{% trans 'Partager cette fiche' %}"
+                    x-data
+                    @click="const data = {title: '{{ provider.business_name|escapejs }}', url: window.location.href};
+                            if (navigator.share) { navigator.share(data).catch(() => {}); }
+                            else if (navigator.clipboard) { navigator.clipboard.writeText(data.url).then(() => window.dispatchEvent(new CustomEvent('kora-toast', {detail: {type: 'success', text: '{% trans 'Lien copié dans le presse-papiers.' %}'}}))); }">
+              <i data-lucide="share-2" class="h-5 w-5"></i>
+            </button>
+          </div>
+        </div>
+        <p class="mt-1 text-kora-brown/80">{{ provider.main_trade }} · <span class="inline-flex items-center gap-1"><i data-lucide="map-pin" class="h-4 w-4"></i>{{ provider.city.name }}</span></p>
+        <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {% if provider.reviews_count %}{% include "components/stars.html" with rating=provider.rating_avg reviews=provider.reviews_count %}{% else %}<span class="badge-gray">{% trans "Nouveau sur Kora" %}</span>{% endif %}
+          {% if provider.home_service %}<span class="badge-green"><i data-lucide="home" class="h-3.5 w-3.5"></i>{% trans "Intervient à domicile" %}</span>{% endif %}
+          {% if provider.is_unavailable %}<span class="badge-red">{% trans "Indisponible pour le moment" %}</span>{% endif %}
+        </div>
+        {% if subcategories %}<p class="mt-3 flex flex-wrap gap-2">{% for s in subcategories %}<span class="badge-orange">{{ s.name }}</span>{% endfor %}</p>{% endif %}
+      </div>
+    </div>
+
+    {% if can_request and not is_preview %}
+    <div class="mt-6 flex flex-col gap-2 sm:flex-row">
+      <a href="{% url 'providers:whatsapp' provider.slug %}" target="_blank" rel="noopener nofollow" class="btn-whatsapp btn-lg">
+        <i data-lucide="message-circle" class="h-5 w-5"></i>{% trans "Contacter sur WhatsApp" %}
+      </a>
+      <a href="{% url 'requests_app:create' provider.slug %}" class="btn-primary btn-lg"><i data-lucide="file-text" class="h-5 w-5"></i>{% trans "Demander un devis" %}</a>
+      {% url 'messaging:start' provider.slug as message_url %}
+      {% if message_url %}
+      {% if user.is_authenticated %}<form method="post" action="{{ message_url }}">{% csrf_token %}<button type="submit" class="btn-outline btn-lg w-full"><i data-lucide="send" class="h-5 w-5"></i>{% trans "Envoyer un message" %}</button></form>
+      {% else %}<a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn-outline btn-lg"><i data-lucide="send" class="h-5 w-5"></i>{% trans "Envoyer un message" %}</a>{% endif %}
+      {% endif %}
+    </div>
+    {% elif is_owner %}
+      <p class="mt-6 text-sm text-kora-brown/70">{% trans "C'est votre fiche publique." %} <a href="{{ request.user.get_home_url }}" class="font-semibold text-kora-orange-600 hover:underline">{% trans "Retour à mon espace" %}</a></p>
+    {% endif %}
+  </header>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
+    <div class="space-y-6">
+      {% if provider.description %}
+      <section class="card p-5 sm:p-7" aria-labelledby="h-about">
+        <h2 id="h-about" class="text-xl">{% trans "À propos" %}</h2>
+        <p class="mt-3 whitespace-pre-line leading-relaxed text-kora-brown/90">{{ provider.description }}</p>
+        {% if fields %}
+        <dl class="mt-5 grid gap-3 border-t border-kora-brown/10 pt-5 sm:grid-cols-2">
+          {% for f in fields %}<div><dt class="text-xs font-semibold uppercase tracking-wide text-kora-brown/60">{{ f.label }}</dt><dd class="mt-0.5 text-sm font-medium">{{ f.value }}</dd></div>{% endfor %}
+        </dl>
+        {% endif %}
+      </section>
+      {% elif fields %}
+      <section class="card p-5 sm:p-7"><h2 class="text-xl">{% trans "Informations" %}</h2>
+        <dl class="mt-4 grid gap-3 sm:grid-cols-2">{% for f in fields %}<div><dt class="text-xs font-semibold uppercase tracking-wide text-kora-brown/60">{{ f.label }}</dt><dd class="mt-0.5 text-sm font-medium">{{ f.value }}</dd></div>{% endfor %}</dl>
+      </section>
+      {% endif %}
+
+      {% if services %}
+      <section class="card p-5 sm:p-7" aria-labelledby="h-services">
+        <h2 id="h-services" class="text-xl">{% trans "Services et tarifs" %}</h2>
+        <ul class="mt-4 divide-y divide-kora-brown/10">
+          {% for s in services %}
+          <li class="flex items-start justify-between gap-4 py-4">
+            <div class="min-w-0">
+              <p class="font-semibold">{{ s.title }}</p>
+              {% if s.description %}<p class="mt-0.5 text-sm text-kora-brown/70">{{ s.description }}</p>{% endif %}
+              {% if s.duration_minutes %}<p class="mt-1 flex items-center gap-1 text-xs text-kora-brown/60"><i data-lucide="clock" class="h-3.5 w-3.5"></i>{{ s.duration_minutes|duration_min }}</p>{% endif %}
+            </div>
+            <div class="shrink-0 text-right">
+              {% if s.price_type == "QUOTE" or not s.amount %}<span class="badge-gray">{% trans "Sur devis" %}</span>
+              {% else %}<p class="font-bold text-kora-orange-700">{% if s.price_type == "FROM" %}<span class="text-xs font-medium text-kora-brown/60">{% trans "dès" %} </span>{% endif %}{{ s.amount|fcfa }}</p>{% endif %}
+              {% if can_request and not is_preview %}<a href="{% url 'requests_app:create' provider.slug %}?service={{ s.pk }}" class="mt-1 inline-block text-xs font-semibold text-kora-orange-600 hover:underline">{% trans "Demander" %}</a>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if portfolio %}
+      <section class="card p-5 sm:p-7" aria-labelledby="h-gallery">
+        <h2 id="h-gallery" class="text-xl">{% trans "Réalisations" %}</h2>
+        <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {% for m in portfolio %}
+          <li><button type="button" class="block aspect-square w-full overflow-hidden rounded-2xl" @click="lightbox = {src: '{{ m.image.url }}', caption: '{{ m.caption|escapejs }}'}" aria-label="{% trans 'Agrandir la photo' %}{% if m.caption %} : {{ m.caption }}{% endif %}">
+            <img src="{{ m.image.url }}" alt="{{ m.caption|default:provider.business_name }}" class="h-full w-full object-cover transition hover:scale-105" loading="lazy">
+          </button></li>
+          {% endfor %}
+        </ul>
+        <div x-show="lightbox" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-kora-brown/80 p-4" role="dialog" aria-modal="true" @keydown.escape.window="lightbox = null" @click.self="lightbox = null">
+          <figure class="max-h-full max-w-3xl">
+            <img :src="lightbox && lightbox.src" :alt="lightbox && lightbox.caption" class="max-h-[80vh] rounded-2xl">
+            <figcaption class="mt-2 text-center text-sm text-white" x-text="lightbox && lightbox.caption"></figcaption>
+          </figure>
+          <button type="button" class="absolute right-4 top-4 rounded-full bg-white/90 p-2" @click="lightbox = null" aria-label="{% trans 'Fermer' %}"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="card p-5 sm:p-7" aria-labelledby="h-reviews" id="avis">
+        <h2 id="h-reviews" class="text-xl">{% trans "Avis des clients" %}</h2>
+        {% if reviews_total %}
+          <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center">
+            <div class="text-center sm:w-40">
+              <p class="text-5xl font-extrabold text-kora-brown">{{ provider.rating_avg|floatformat:1 }}</p>
+              {% include "components/stars.html" with rating=provider.rating_avg size="h-5 w-5" %}
+              <p class="mt-1 text-xs text-kora-brown/60">{% blocktrans count n=reviews_total %}{{ n }} avis{% plural %}{{ n }} avis{% endblocktrans %}</p>
+            </div>
+            <ul class="flex-1 space-y-1.5" aria-label="{% trans 'Répartition des notes' %}">
+              {% for b in rating_bars %}
+              <li class="flex items-center gap-2 text-xs"><span class="w-6 text-right font-medium">{{ b.stars }}★</span>
+                <span class="h-2 flex-1 overflow-hidden rounded-full bg-kora-brown/10"><span class="block h-full rounded-full bg-kora-yellow" style="width: {{ b.pct }}%"></span></span>
+                <span class="w-6 text-kora-brown/60">{{ b.count }}</span></li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="mt-4 divide-y divide-kora-brown/10 border-t border-kora-brown/10">
+            {% include "providers/partials/reviews_list.html" %}
+          </div>
+        {% else %}
+          <p class="mt-3 text-sm text-kora-brown/70">{% trans "Pas encore d'avis. Les avis sont publiés par les clients après une prestation terminée." %}</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <aside class="space-y-6">
+      <section class="card p-5" aria-labelledby="h-hours">
+        <h2 id="h-hours" class="text-lg">{% trans "Horaires" %}</h2>
+        <ul class="mt-3 space-y-1.5 text-sm">
+          {% for h in hours %}
+          <li class="flex justify-between {% if h.today %}font-bold text-kora-orange-700{% endif %}"><span>{{ h.label }}</span><span class="{% if h.closed %}text-kora-brown/50{% endif %}">{{ h.text|default:"—" }}</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+      <section class="card p-5 text-sm">
+        <h2 class="text-lg">{% trans "Zone" %}</h2>
+        <p class="mt-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="h-4 w-4 text-kora-orange"></i>{{ provider.city.name }}</p>
+        {% if provider.home_service %}<p class="mt-1 text-kora-brown/70">{% trans "Se déplace chez le client." %}</p>{% endif %}
+        {% if provider.show_phone_publicly %}<p class="mt-2 text-kora-brown/70">{% trans "Contact principalement via WhatsApp." %}</p>{% endif %}
+      </section>
+      {% if user.is_authenticated and not is_owner and not user.is_admin_role %}
+      <p class="px-1 text-center text-xs"><a href="{% url 'reviews:report' 'provider' provider.pk %}" class="text-kora-brown/50 hover:text-kora-orange-600 hover:underline"><i data-lucide="flag" class="mr-1 inline h-3.5 w-3.5"></i>{% trans "Signaler ce profil" %}</a></p>
+      {% elif not user.is_authenticated %}
+      <p class="px-1 text-center text-xs"><a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="text-kora-brown/50 hover:underline">{% trans "Connectez-vous pour signaler ce profil" %}</a></p>
+      {% endif %}
+    </aside>
+  </div>
+
+  {% if similar %}
+  <section class="mt-10" aria-labelledby="h-similar">
+    <h2 id="h-similar" class="text-xl">{% blocktrans with trade=provider.category.name city=provider.city.name %}Autres prestataires : {{ trade }} à {{ city }}{% endblocktrans %}</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{% for p in similar %}{% include "components/provider_card.html" with p=p %}{% endfor %}</div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

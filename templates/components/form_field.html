@@ -1,0 +1,11 @@
+{# Champ de formulaire complet. Paramètre : field #}
+<div>
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="flex items-start gap-2 text-sm">{{ field }}<span>{{ field.label }}</span></label>
+  {% else %}
+    <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}
+  {% endif %}
+  {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+  {% for e in field.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+</div>

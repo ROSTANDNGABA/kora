@@ -1,0 +1,28 @@
+{% extends layout %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Messages" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Messages" %}</h1>
+{% if conversations %}
+<ul class="mt-5 space-y-2">
+  {% for c in conversations %}
+  <li class="card card-hover relative flex items-center gap-3 p-4">
+    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-kora-orange-100 text-sm font-bold text-kora-orange-700" aria-hidden="true">{{ c.other_name|initials }}</span>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-baseline justify-between gap-2">
+        <h2 class="truncate text-base"><a href="{% url 'messaging:thread' c.pk %}" class="after:absolute after:inset-0 after:rounded-2xl">{{ c.other_name }}</a></h2>
+        <time class="shrink-0 text-xs text-kora-brown/60" datetime="{{ c.updated_at|date:'c' }}">{{ c.updated_at|date:"j M, H:i" }}</time>
+      </div>
+      <p class="truncate text-sm {% if c.unread %}font-semibold text-kora-brown{% else %}text-kora-brown/70{% endif %}">{% if c.mine %}{% trans "Vous :" %} {% endif %}{{ c.preview|default:"…" }}</p>
+    </div>
+    {% if c.unread %}<span class="badge-orange shrink-0" aria-label="{% blocktrans with n=c.unread %}{{ n }} non lus{% endblocktrans %}">{{ c.unread }}</span>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="mt-5">
+  {% if user.is_client %}{% url 'catalog:search' as search_url %}{% include "components/empty_state.html" with icon="message-circle" title="Aucune conversation" text="Ouvrez la fiche d'un prestataire et choisissez « Envoyer un message »." cta_label="Chercher un prestataire" cta_url=search_url %}
+  {% else %}{% include "components/empty_state.html" with icon="message-circle" title="Aucune conversation" text="Vos échanges avec les clients apparaîtront ici dès qu'un client vous écrit." %}{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{{ provider.business_name }}{% endblock %}
+{% block page %}
+<a href="{% url 'dashboard_admin:providers' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Prestataires" %}</a>
+<div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl sm:text-3xl">{{ provider.business_name }}
+    <span class="badge align-middle {% if provider.status == 'ACTIVE' %}badge-green{% elif provider.status == 'PENDING' %}badge-orange{% else %}badge-red{% endif %}">{{ provider.get_status_display }}</span>
+    {% if provider.is_verified %}<span class="badge-green align-middle">{% trans "Vérifié" %}</span>{% endif %}{% if provider.is_featured %}<span class="badge-yellow align-middle">{% trans "Mis en avant" %}</span>{% endif %}</h1>
+  <div class="flex flex-wrap gap-2">
+    <a href="{% url 'dashboard_admin:provider_edit' provider.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+    <a href="{{ provider.get_absolute_url }}" target="_blank" rel="noopener" class="btn-outline btn-sm">{% trans "Fiche publique" %}</a>
+    {% if provider.status == "PENDING" or provider.status == "REJECTED" %}{% url 'dashboard_admin:provider_approve' provider.pk as u %}{% include "components/admin_action.html" with label="Valider" title="Valider ce prestataire ?" text="Son profil deviendra public et il sera prévenu." action=u btn_class="btn-primary btn-sm" %}{% endif %}
+    {% if provider.status == "PENDING" %}{% url 'dashboard_admin:provider_reject' provider.pk as u %}{% include "components/admin_action.html" with label="Refuser" title="Refuser cette inscription ?" action=u reason="required" confirm_label="Refuser" danger=True %}{% endif %}
+    {% if provider.status == "ACTIVE" %}{% url 'dashboard_admin:provider_suspend' provider.pk as u %}{% include "components/admin_action.html" with label="Suspendre" title="Suspendre ce prestataire ?" text="Son profil ne sera plus visible. Le motif lui sera transmis." action=u reason="required" confirm_label="Suspendre" danger=True %}{% endif %}
+    {% if provider.status == "SUSPENDED" %}{% url 'dashboard_admin:provider_reactivate' provider.pk as u %}{% include "components/admin_action.html" with label="Réactiver" title="Lever la suspension ?" action=u btn_class="btn-primary btn-sm" %}{% endif %}
+    {% url 'dashboard_admin:provider_verified' provider.pk as u %}{% if provider.is_verified %}{% include "components/admin_action.html" with label="Retirer le badge" title="Retirer le badge Vérifié ?" action=u %}{% else %}{% include "components/admin_action.html" with label="Accorder le badge" title="Accorder le badge Vérifié ?" action=u %}{% endif %}
+    {% if provider.status == "ACTIVE" or provider.is_featured %}{% url 'dashboard_admin:provider_featured' provider.pk as u %}{% if provider.is_featured %}{% include "components/admin_action.html" with label="Retirer de la une" title="Retirer de la mise en avant ?" action=u %}{% else %}{% include "components/admin_action.html" with label="Mettre en avant" title="Mettre en avant sur l'accueil ?" action=u %}{% endif %}{% endif %}
+  </div>
+</div>
+{% if provider.status_reason %}<p class="mt-3 rounded-xl bg-kora-brown/5 p-3 text-sm"><strong>{% trans "Motif :" %}</strong> {{ provider.status_reason }}</p>{% endif %}
+{% if provider.pending_category %}
+<div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-kora-yellow-100 p-4 text-sm"><p>{% blocktrans with old=provider.category.name new=provider.pending_category.name %}Demande de changement de métier : {{ old }} vers <strong>{{ new }}</strong>{% endblocktrans %}</p>
+  <div class="flex gap-2">{% url 'dashboard_admin:category_change_approve' provider.pk as u %}{% include "components/admin_action.html" with label="Accepter" title="Accepter le changement de métier ?" action=u btn_class="btn-primary btn-sm" %}
+  {% url 'dashboard_admin:category_change_reject' provider.pk as u %}{% include "components/admin_action.html" with label="Refuser" title="Refuser le changement ?" action=u reason="required" confirm_label="Refuser" danger=True %}</div></div>
+{% endif %}
+
+<div class="mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]">
+  <div class="space-y-6">
+    <section class="card space-y-3 p-5"><h2 class="text-lg">{% trans "Profil" %}</h2>
+      <dl class="grid gap-3 text-sm sm:grid-cols-2">
+        <div><dt class="text-xs text-kora-brown/60">{% trans "Responsable" %}</dt><dd class="font-medium">{{ provider.user.get_full_name|default:"—" }} · {{ provider.user.email }}</dd></div>
+        <div><dt class="text-xs text-kora-brown/60">{% trans "Métier" %}</dt><dd class="font-medium">{{ provider.category.name }}</dd></div>
+        <div><dt class="text-xs text-kora-brown/60">{% trans "Ville" %}</dt><dd class="font-medium">{{ provider.city.name }}</dd></div>
+        <div><dt class="text-xs text-kora-brown/60">WhatsApp</dt><dd class="font-medium">{{ provider.whatsapp }}</dd></div>
+        <div><dt class="text-xs text-kora-brown/60">{% trans "Inscrit le" %}</dt><dd class="font-medium">{{ provider.created_at|date:"d/m/Y" }}</dd></div>
+        <div><dt class="text-xs text-kora-brown/60">{% trans "Activité" %}</dt><dd class="font-medium">{{ provider.get_activity_type_display }}</dd></div>
+      </dl>
+      {% if provider.description %}<p class="whitespace-pre-line text-sm text-kora-brown/80">{{ provider.description }}</p>{% endif %}
+      {% if portfolio %}<ul class="grid grid-cols-4 gap-2">{% for m in portfolio %}<li><img src="{{ m.image.url }}" alt="" class="aspect-square w-full rounded-lg object-cover" loading="lazy"></li>{% endfor %}</ul>{% endif %}
+    </section>
+    <section class="card p-5"><h2 class="text-lg">{% trans "Dernières demandes" %}</h2>
+      {% if requests %}<ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for r in requests %}<li class="flex items-center justify-between gap-3 py-2"><a href="{% url 'dashboard_admin:request_detail' r.pk %}" class="min-w-0 truncate hover:underline">#{{ r.pk }} · {{ r.client.get_full_name|default:r.client.email }}</a><span class="{{ r.status|request_badge }}">{{ r.get_status_display }}</span></li>{% endfor %}</ul>{% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucune demande." %}</p>{% endif %}</section>
+  </div>
+  <aside class="space-y-6">
+    <section class="card p-5"><h2 class="text-lg">{% trans "Chiffres clés" %}</h2>
+      <dl class="mt-3 space-y-2 text-sm"><div class="flex justify-between"><dt>{% trans "Vues" %}</dt><dd class="font-semibold">{{ provider.views_count }}</dd></div><div class="flex justify-between"><dt>{% trans "Clics WhatsApp" %}</dt><dd class="font-semibold">{{ provider.whatsapp_clicks }}</dd></div><div class="flex justify-between"><dt>{% trans "Note" %}</dt><dd class="font-semibold">{% if provider.reviews_count %}{{ provider.rating_avg|floatformat:1 }} ({{ provider.reviews_count }}){% else %}—{% endif %}</dd></div><div class="flex justify-between"><dt>{% trans "Services" %}</dt><dd class="font-semibold">{{ services|length }}</dd></div></dl></section>
+    <section class="card p-5"><h2 class="text-lg">{% trans "Vérification" %}</h2>
+      {% if verifications %}<ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for v in verifications %}<li class="py-2">{{ v.created_at|date:"d/m/Y" }} · {{ v.get_status_display }}{% if v.reason %}<br><span class="text-kora-brown/70">{{ v.reason }}</span>{% endif %}</li>{% endfor %}</ul><a href="{% url 'dashboard_admin:verifications' %}" class="mt-2 inline-block text-sm font-semibold text-kora-orange-600 hover:underline">{% trans "Ouvrir les vérifications" %}</a>{% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucun dossier envoyé." %}</p>{% endif %}</section>
+    {% if reports %}<section class="card p-5"><h2 class="text-lg">{% trans "Signalements" %}</h2><ul class="mt-3 text-sm">{% for r in reports %}<li><a href="{% url 'dashboard_admin:report_detail' r.pk %}" class="hover:underline">{{ r.reason }} · {{ r.get_status_display }}</a></li>{% endfor %}</ul></section>{% endif %}
+    {% if history %}<section class="card p-5"><h2 class="text-lg">{% trans "Actions de l'équipe" %}</h2><ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for e in history %}<li class="py-2"><code class="text-xs">{{ e.action }}</code><br><span class="text-xs text-kora-brown/60">{{ e.actor.email|default:"—" }} · {{ e.created_at|date:"d/m/Y H:i" }}</span></li>{% endfor %}</ul></section>{% endif %}
+  </aside>
+</div>
+{% endblock %}

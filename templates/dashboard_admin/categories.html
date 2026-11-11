@@ -1,0 +1,19 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Catégories et champs" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Catégories et champs" %}</h1>
+  <a href="{% url 'dashboard_admin:category_new' %}" class="btn-primary"><i data-lucide="plus" class="h-4 w-4"></i>{% trans "Nouvelle catégorie" %}</a></div>
+<div class="card mt-6 overflow-x-auto"><table class="table-kora">
+  <thead><tr><th scope="col">{% trans "Catégorie" %}</th><th scope="col">{% trans "Spécialités" %}</th><th scope="col">{% trans "Champs" %}</th><th scope="col">{% trans "Prestataires" %}</th><th scope="col">{% trans "Statut" %}</th><th scope="col"><span class="sr-only">{% trans "Actions" %}</span></th></tr></thead>
+  <tbody>{% for c in categories %}<tr>
+    <td><span class="inline-flex items-center gap-2 font-semibold"><span class="flex h-8 w-8 items-center justify-center rounded-lg text-white" style="background: {{ c.color }}"><i data-lucide="{{ c.icon }}" class="h-4 w-4"></i></span>{{ c.name }}</span></td>
+    <td>{{ c.subs_count }}</td><td>{{ c.fields_count }}</td><td>{{ c.providers_count }}</td>
+    <td>{% if c.is_active %}<span class="badge-green">{% trans "Active" %}</span>{% else %}<span class="badge-gray">{% trans "Désactivée" %}</span>{% endif %}</td>
+    <td><div class="flex flex-wrap justify-end gap-2">
+      <a href="{% url 'dashboard_admin:category_fields' c.pk %}" class="btn-outline btn-sm">{% trans "Champs et spécialités" %}</a>
+      <a href="{% url 'dashboard_admin:category_edit' c.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+      {% url 'dashboard_admin:category_toggle' c.pk as u %}{% if c.is_active %}{% include "components/admin_action.html" with label="Désactiver" title="Désactiver cette catégorie ?" text="Elle disparaît de la recherche et de l'inscription, les profils existants restent." action=u %}{% else %}{% include "components/admin_action.html" with label="Activer" title="Activer cette catégorie ?" action=u %}{% endif %}
+      {% url 'dashboard_admin:category_delete' c.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer cette catégorie ?" text="Impossible si des prestataires l'utilisent : désactivez-la dans ce cas." action=u btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}
+    </div></td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

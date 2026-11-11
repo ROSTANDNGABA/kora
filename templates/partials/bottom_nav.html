@@ -1,0 +1,13 @@
+{% load i18n kora_ui %}
+{% nav_items as items %}
+<nav class="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-kora-brown/10 bg-white shadow-pop md:hidden" aria-label="{% trans 'Navigation mobile' %}">
+  <ul class="mx-auto flex max-w-md justify-around">
+    {% for item in items %}
+    <li class="flex-1">
+      <a href="{{ item.url }}" class="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium {% if item.active %}text-kora-orange{% else %}text-kora-brown/70{% endif %}" {% if item.active %}aria-current="page"{% endif %}>
+        <i data-lucide="{{ item.icon }}" class="h-5 w-5"></i>{% trans item.label %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>

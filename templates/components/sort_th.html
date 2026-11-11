@@ -1,0 +1,5 @@
+{% load kora_ui %}
+{# En-tête de colonne triable. Paramètres : field, label. Bascule asc/desc via ?sort=field ou ?sort=-field #}
+<th scope="col" aria-sort="{% if request.GET.sort == field %}ascending{% elif request.GET.sort == '-'|add:field %}descending{% else %}none{% endif %}">
+  <a href="{% if request.GET.sort == field %}{% url_with_params sort='-'|add:field page='' %}{% else %}{% url_with_params sort=field page='' %}{% endif %}" class="inline-flex items-center gap-1 hover:text-kora-orange">{{ label }}<i data-lucide="arrow-up-down" class="h-3 w-3"></i></a>
+</th>

@@ -1,0 +1,18 @@
+{% if show %}
+{% if anonymous %}
+  <a href="{% url 'accounts:login' %}?next={{ next|urlencode }}" class="relative z-10 rounded-full p-1.5 text-kora-brown/40 hover:text-red-500" aria-label="Se connecter pour ajouter {{ provider.business_name }} aux favoris">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-4.6-9.3-9A5.4 5.4 0 0112 6a5.4 5.4 0 019.3 6c-2.3 4.4-9.3 9-9.3 9z"/></svg>
+  </a>
+{% else %}
+  <form method="post" action="{% url 'favorites:toggle' provider.pk %}" class="relative z-10"
+        hx-post="{% url 'favorites:toggle' provider.pk %}" hx-swap="outerHTML"{% if in_list %} hx-target="closest article"{% endif %}>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ next }}">
+    {% if in_list %}<input type="hidden" name="from" value="list">{% endif %}
+    <button type="submit" class="rounded-full p-1.5 {% if is_favorite %}text-red-500{% else %}text-kora-brown/40 hover:text-red-500{% endif %}"
+            aria-label="{% if is_favorite %}Retirer {{ provider.business_name }} des favoris{% else %}Ajouter {{ provider.business_name }} aux favoris{% endif %}" aria-pressed="{% if is_favorite %}true{% else %}false{% endif %}">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="{% if is_favorite %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-4.6-9.3-9A5.4 5.4 0 0112 6a5.4 5.4 0 019.3 6c-2.3 4.4-9.3 9-9.3 9z"/></svg>
+    </button>
+  </form>
+{% endif %}
+{% endif %}

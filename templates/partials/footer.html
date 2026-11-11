@@ -1,0 +1,54 @@
+{% load i18n %}
+<footer class="bg-kora-brown text-white">
+  <div class="mx-auto grid max-w-7xl gap-10 px-6 py-12 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div>
+      {% include "components/logo.html" with light=True %}
+      <p class="mt-3 max-w-xs text-sm text-white/70">{{ SITE_SLOGAN }}</p>
+      {% if SOCIAL_LINKS %}
+      <ul class="mt-5 flex gap-2" aria-label="{% trans 'Réseaux sociaux' %}">
+        {% for name, url in SOCIAL_LINKS.items %}
+          <li><a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-kora-orange" aria-label="{{ name|capfirst }}"><i data-lucide="{% if name == 'tiktok' %}music{% else %}{{ name }}{% endif %}" class="h-4 w-4"></i></a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <nav aria-label="{% trans 'Métiers' %}">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-white/60">{% trans "Métiers" %}</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        {% for c in footer_categories %}<li><a href="{{ c.get_absolute_url }}" class="text-white/85 hover:text-kora-yellow">{{ c.name }}</a></li>{% endfor %}
+        <li><a href="{% url 'catalog:search' %}" class="text-white/85 hover:text-kora-yellow">{% trans "Tous les prestataires" %}</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-label="{% trans 'Kora' %}">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-white/60">Kora</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a href="{% url 'core:home' %}#comment-ca-marche" class="text-white/85 hover:text-kora-yellow">{% trans "Comment ça marche" %}</a></li>
+        <li><a href="{% url 'accounts:signup_provider' %}" class="text-white/85 hover:text-kora-yellow">{% trans "Devenir artisan" %}</a></li>
+        <li><a href="{% url 'cms:faq' %}" class="text-white/85 hover:text-kora-yellow">FAQ</a></li>
+        {% if SUPPORT_WHATSAPP %}<li><a href="https://wa.me/{{ SUPPORT_WHATSAPP }}" target="_blank" rel="noopener noreferrer" class="text-white/85 hover:text-kora-yellow">{% trans "Écrire au support" %}</a></li>{% endif %}
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-white/60">{% trans "Informations" %}</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        {% for p in footer_pages %}<li><a href="{% url 'cms:page' p.slug %}" class="text-white/85 hover:text-kora-yellow">{{ p.title }}</a></li>{% endfor %}
+      </ul>
+      <form action="{% url 'set_language' %}" method="post" class="mt-6 flex items-center gap-2 text-sm">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <label for="lang" class="text-white/70">{% trans "Langue" %}</label>
+        <select id="lang" name="language" class="rounded-lg border-0 bg-white/10 py-1.5 pl-3 pr-8 text-sm text-white focus:ring-2 focus:ring-kora-orange" onchange="this.form.submit()">
+          {% get_current_language as CURRENT %}
+          <option value="fr" class="text-kora-brown" {% if CURRENT == "fr" %}selected{% endif %}>Français</option>
+          <option value="en" class="text-kora-brown" {% if CURRENT == "en" %}selected{% endif %}>English</option>
+        </select>
+      </form>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <p class="mx-auto max-w-7xl px-6 py-5 text-xs text-white/50 sm:px-8">© {% now "Y" %} Kora · Cameroun</p>
+  </div>
+</footer>

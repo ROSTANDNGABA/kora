@@ -1,0 +1,22 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Clients" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Clients" %}</h1>
+  <a href="{% url_with_params export='csv' page='' %}" class="btn-outline btn-sm"><i data-lucide="download" class="h-4 w-4"></i>{% trans "Exporter (CSV)" %}</a></div>
+<form method="get" class="mt-5 flex flex-wrap items-end gap-3">
+  <div><label class="label" for="q">{% trans "Recherche" %}</label><input id="q" type="search" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'Nom, e-mail, téléphone' %}" class="input w-64"></div>
+  <div><label class="label" for="st">{% trans "Statut" %}</label><select id="st" name="statut" class="input"><option value="">{% trans "Tous" %}</option><option value="actifs" {% if request.GET.statut == "actifs" %}selected{% endif %}>{% trans "Actifs" %}</option><option value="suspendus" {% if request.GET.statut == "suspendus" %}selected{% endif %}>{% trans "Suspendus" %}</option></select></div>
+  <button class="btn-secondary" type="submit">{% trans "Filtrer" %}</button>
+  {% if request.GET.q or request.GET.statut %}<a href="{% url 'dashboard_admin:clients' %}" class="btn-ghost">{% trans "Réinitialiser" %}</a>{% endif %}
+</form>
+{% if page_obj.object_list %}
+<div class="card mt-5 overflow-x-auto"><table class="table-kora">
+  <thead><tr>{% include "components/sort_th.html" with field="first_name" label="Client" %}<th scope="col">{% trans "Téléphone" %}</th>{% include "components/sort_th.html" with field="date_joined" label="Inscription" %}{% include "components/sort_th.html" with field="last_login" label="Dernière connexion" %}<th scope="col">{% trans "Demandes" %}</th><th scope="col">{% trans "Statut" %}</th></tr></thead>
+  <tbody>{% for c in page_obj %}<tr>
+    <td><a href="{% url 'dashboard_admin:client_detail' c.pk %}" class="font-semibold text-kora-orange-700 hover:underline">{{ c.get_full_name|default:"—" }}</a><br><span class="text-xs text-kora-brown/60">{{ c.email }}</span></td>
+    <td>{{ c.phone|default:"—" }}</td><td>{{ c.date_joined|date:"d/m/Y" }}</td><td>{{ c.last_login|date:"d/m/Y"|default:"—" }}</td><td>{{ c.requests_count }}</td>
+    <td>{% if c.is_active %}<span class="badge-green">{% trans "Actif" %}</span>{% else %}<span class="badge-red">{% trans "Suspendu" %}</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="users" title="Aucun client trouvé" text="Modifiez votre recherche ou réinitialisez les filtres." %}</div>{% endif %}
+{% endblock %}

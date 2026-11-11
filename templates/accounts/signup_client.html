@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Inscription client" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-lg px-4 py-10 sm:py-14">
+  <div class="card p-6 sm:p-8">
+    <h1 class="text-2xl">{% trans "Créer un compte client" %}</h1>
+    <form method="post" class="mt-6 space-y-4" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <div class="grid gap-4 sm:grid-cols-2">
+        {% include "components/form_field.html" with field=form.first_name %}
+        {% include "components/form_field.html" with field=form.last_name %}
+      </div>
+      {% include "components/form_field.html" with field=form.email %}
+      {% include "components/form_field.html" with field=form.phone %}
+      {% include "components/form_field.html" with field=form.city %}
+      {% include "components/form_field.html" with field=form.password1 %}
+      {% include "components/form_field.html" with field=form.password2 %}
+      {% include "components/form_field.html" with field=form.accept_terms %}
+      <button type="submit" class="btn-primary w-full">{% trans "Créer mon compte" %}</button>
+    </form>
+    <p class="mt-5 text-sm">{% trans "Déjà inscrit ?" %} <a href="{% url 'accounts:login' %}" class="font-medium text-kora-orange-600 hover:underline">{% trans "Se connecter" %}</a></p>
+  </div>
+</div>
+{% endblock %}

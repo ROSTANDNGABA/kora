@@ -1,0 +1,13 @@
+{% load kora_ui i18n %}
+{# Pagination. Paramètres : page_obj, hx_target (optionnel : chargement HTMX sans rechargement). Conserve les filtres GET existants. #}
+{% if page_obj.has_other_pages %}
+<nav class="mt-6 flex items-center justify-between gap-3" aria-label="{% trans 'Pagination' %}">
+  {% if page_obj.has_previous %}
+    <a href="{% url_with_params page=page_obj.previous_page_number %}" class="btn-outline btn-sm" {% if hx_target %}hx-get="{% url_with_params page=page_obj.previous_page_number %}" hx-target="{{ hx_target }}" hx-push-url="true" hx-on::after-request="document.querySelector('{{ hx_target }}').scrollIntoView({behavior:'smooth'})"{% endif %}>&larr; {% trans "Précédent" %}</a>
+  {% else %}<span class="btn-outline btn-sm pointer-events-none opacity-40">&larr; {% trans "Précédent" %}</span>{% endif %}
+  <span class="text-sm text-kora-brown/70">{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} sur {{ total }}{% endblocktrans %}</span>
+  {% if page_obj.has_next %}
+    <a href="{% url_with_params page=page_obj.next_page_number %}" class="btn-outline btn-sm" {% if hx_target %}hx-get="{% url_with_params page=page_obj.next_page_number %}" hx-target="{{ hx_target }}" hx-push-url="true" hx-on::after-request="document.querySelector('{{ hx_target }}').scrollIntoView({behavior:'smooth'})"{% endif %}>{% trans "Suivant" %} &rarr;</a>
+  {% else %}<span class="btn-outline btn-sm pointer-events-none opacity-40">{% trans "Suivant" %} &rarr;</span>{% endif %}
+</nav>
+{% endif %}

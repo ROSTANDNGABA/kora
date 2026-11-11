@@ -1,0 +1,15 @@
+{# Accordéon FAQ accessible (Alpine). Paramètre : faqs #}
+<div x-data="{ open: null }" class="divide-y divide-kora-brown/10 rounded-2xl bg-white shadow-soft">
+  {% for f in faqs %}
+  <div>
+    <h3>
+      <button type="button" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold sm:text-base"
+              @click="open = open === {{ f.pk }} ? null : {{ f.pk }}" :aria-expanded="open === {{ f.pk }}" aria-controls="faq-{{ f.pk }}">
+        <span>{{ f.question }}</span>
+        <i data-lucide="chevron-down" class="h-5 w-5 shrink-0 transition" :class="open === {{ f.pk }} && 'rotate-180'"></i>
+      </button>
+    </h3>
+    <div id="faq-{{ f.pk }}" x-show="open === {{ f.pk }}" x-cloak class="px-5 pb-4 text-sm leading-relaxed text-kora-brown/75">{{ f.answer }}</div>
+  </div>
+  {% endfor %}
+</div>

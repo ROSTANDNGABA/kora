@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if editing %}{% trans "Modifier mon avis" %}{% else %}{% trans "Donner mon avis" %}{% endif %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-xl px-4 py-8 sm:px-6">
+  <a href="{% url 'requests_app:detail' req.pk %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% blocktrans with id=req.pk %}Demande n°{{ id }}{% endblocktrans %}</a>
+  <h1 class="mt-2 text-2xl sm:text-3xl">{% if editing %}{% trans "Modifier mon avis" %}{% else %}{% trans "Donner mon avis" %}{% endif %}</h1>
+  <p class="mt-1 text-sm text-kora-brown/70">{% blocktrans with name=provider.business_name %}Votre expérience avec {{ name }}.{% endblocktrans %}{% if editing %} {% blocktrans with until=review.editable_until|date:"j F à H:i" %}Modifiable jusqu'au {{ until }}.{% endblocktrans %}{% endif %}</p>
+
+  <form method="post" class="card mt-6 space-y-5 p-5 sm:p-7" novalidate x-data="{ r: {{ form.rating.value|default:0 }}, hover: 0 }">
+    {% csrf_token %}
+    <fieldset>
+      <legend class="label">{{ form.rating.label }}</legend>
+      <div class="flex items-center gap-1" @mouseleave="hover = 0">
+        {% for n in "12345" %}
+        <label class="cursor-pointer" @mouseenter="hover = {{ n }}">
+          <input type="radio" name="rating" value="{{ n }}" class="peer sr-only" {% if form.rating.value|stringformat:"s" == n %}checked{% endif %} @change="r = {{ n }}" required>
+          <span class="sr-only">{{ n }} / 5</span>
+          <svg class="h-10 w-10 transition peer-focus-visible:ring-2 peer-focus-visible:ring-kora-orange" :class="(hover || r) >= {{ n }} ? 'text-kora-yellow' : 'text-kora-brown/20'" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L1.4 7.8l6-.8z"/></svg>
+        </label>
+        {% endfor %}
+      </div>
+      {% for e in form.rating.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+    </fieldset>
+    {% include "components/form_field.html" with field=form.comment %}
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <a href="{% url 'requests_app:detail' req.pk %}" class="btn-outline">{% trans "Annuler" %}</a>
+      <button type="submit" class="btn-primary">{% if editing %}{% trans "Enregistrer" %}{% else %}{% trans "Publier mon avis" %}{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

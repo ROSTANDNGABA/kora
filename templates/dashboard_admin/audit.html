@@ -1,0 +1,21 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Journal d'audit" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Journal d'audit" %}</h1><a href="{% url_with_params export='csv' page='' %}" class="btn-outline btn-sm"><i data-lucide="download" class="h-4 w-4"></i>{% trans "Exporter (CSV)" %}</a></div>
+<form method="get" class="mt-5 flex flex-wrap items-end gap-3">
+  <div><label class="label" for="q">{% trans "Recherche" %}</label><input id="q" type="search" name="q" value="{{ request.GET.q }}" class="input w-48" placeholder="{% trans 'Action, e-mail, IP, id' %}"></div>
+  <div><label class="label" for="ac">{% trans "Acteur" %}</label><select id="ac" name="acteur" class="input"><option value="">{% trans "Tous" %}</option>{% for a in actors %}<option value="{{ a.pk }}" {% if request.GET.acteur == a.pk|stringformat:"s" %}selected{% endif %}>{{ a.email }}</option>{% endfor %}</select></div>
+  <div><label class="label" for="en">{% trans "Entité" %}</label><select id="en" name="entite" class="input"><option value="">{% trans "Toutes" %}</option>{% for e in entities %}<option value="{{ e }}" {% if request.GET.entite == e %}selected{% endif %}>{{ e }}</option>{% endfor %}</select></div>
+  <div><label class="label" for="ax">{% trans "Action commence par" %}</label><input id="ax" name="action" value="{{ request.GET.action }}" class="input w-36" placeholder="provider."></div>
+  <div><label class="label" for="du">{% trans "Du" %}</label><input id="du" type="date" name="du" value="{{ request.GET.du }}" class="input"></div>
+  <div><label class="label" for="au">{% trans "Au" %}</label><input id="au" type="date" name="au" value="{{ request.GET.au }}" class="input"></div>
+  <button class="btn-secondary" type="submit">{% trans "Filtrer" %}</button><a href="{% url 'dashboard_admin:audit' %}" class="btn-ghost">{% trans "Réinitialiser" %}</a>
+</form>
+{% if page_obj.object_list %}
+<div class="card mt-5 overflow-x-auto"><table class="table-kora"><thead><tr><th scope="col">{% trans "Date" %}</th><th scope="col">{% trans "Acteur" %}</th><th scope="col">{% trans "Action" %}</th><th scope="col">{% trans "Cible" %}</th><th scope="col">IP</th><th scope="col">{% trans "Détail" %}</th></tr></thead>
+  <tbody>{% for e in page_obj %}<tr><td class="whitespace-nowrap">{{ e.created_at|date:"d/m/Y H:i" }}</td><td>{{ e.actor.email|default:"—" }}</td><td><code class="text-xs">{{ e.action }}</code></td><td>{{ e.entity_type }}{% if e.entity_id %} #{{ e.entity_id }}{% endif %}</td><td>{{ e.ip_address|default:"—" }}</td>
+    <td class="max-w-xs text-xs text-kora-brown/70">{% if e.detail %}<details><summary class="cursor-pointer">{% trans "Voir" %}</summary><pre class="mt-1 whitespace-pre-wrap break-words">{{ e.detail }}</pre></details>{% else %}—{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="scroll-text" title="Aucune entrée" text="Aucune action ne correspond à ces filtres." %}</div>{% endif %}
+{% endblock %}

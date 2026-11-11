@@ -1,0 +1,27 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Avis" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Avis des clients" %}</h1>
+<p class="mt-1 text-sm text-kora-brown/70">{% if profile.reviews_count %}{% blocktrans with avg=profile.rating_avg|floatformat:1 n=profile.reviews_count %}Note moyenne {{ avg }}/5 sur {{ n }} avis.{% endblocktrans %}{% else %}{% trans "Aucun avis pour le moment." %}{% endif %}</p>
+{% if page_obj.object_list %}
+<ul class="mt-6 space-y-4">
+  {% for r in page_obj %}
+  <li class="card space-y-3 p-5" x-data="{ reply: false }">
+    <div class="flex flex-wrap items-center justify-between gap-2"><div>{% include "components/stars.html" with rating=r.rating %}<span class="ml-2 text-sm font-semibold">{{ r.client.public_name }}</span></div><span class="text-xs text-kora-brown/60">{{ r.created_at|date:"d/m/Y" }}</span></div>
+    {% if r.comment %}<p class="text-sm">{{ r.comment }}</p>{% endif %}
+    {% if r.provider_reply %}<div class="rounded-xl bg-kora-cream p-3 text-sm"><p class="text-xs font-semibold text-kora-brown/70">{% trans "Votre réponse" %}</p><p class="mt-1">{{ r.provider_reply }}</p></div>{% endif %}
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="btn-outline btn-sm" @click="reply = !reply">{% if r.provider_reply %}{% trans "Modifier ma réponse" %}{% else %}{% trans "Répondre" %}{% endif %}</button>
+      <a href="{% url 'reviews:report' 'review' r.pk %}" class="btn-ghost btn-sm text-red-600 hover:bg-red-50"><i data-lucide="flag" class="h-4 w-4"></i>{% trans "Signaler" %}</a>
+    </div>
+    <form x-show="reply" x-cloak method="post" action="{% url 'dashboard_provider:review_reply' r.pk %}" class="space-y-3">{% csrf_token %}
+      <label class="sr-only" for="rep-{{ r.pk }}">{% trans "Votre réponse publique" %}</label>
+      <textarea id="rep-{{ r.pk }}" name="reply" rows="3" maxlength="1000" required class="input">{{ r.provider_reply }}</textarea>
+      <button type="submit" class="btn-primary btn-sm">{% trans "Publier la réponse" %}</button></form>
+  </li>
+  {% endfor %}
+</ul>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="star" title="Pas encore d'avis" text="Les avis apparaissent après chaque prestation terminée. Soignez vos réponses, les futurs clients les lisent." %}</div>{% endif %}
+{% endblock %}

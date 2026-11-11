@@ -1,0 +1,25 @@
+{% load i18n %}
+<section id="comment-ca-marche" class="scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-6xl">
+    <h2 class="text-center text-2xl sm:text-3xl">{% trans "Comment ça marche" %}</h2>
+    <p class="mx-auto mt-2 max-w-xl text-center text-kora-brown/70">{% trans "Trois étapes, de la recherche à l'avis." %}</p>
+    <ol class="relative mt-12 grid gap-6 md:grid-cols-3">
+      <div class="absolute left-[16%] right-[16%] top-10 hidden border-t-2 border-dashed border-kora-orange/40 md:block" aria-hidden="true"></div>
+      <li data-reveal style="--d:0" class="relative text-center">
+        <span class="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-kora-orange text-white shadow-card"><i data-lucide="search" class="h-9 w-9"></i><span class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-kora-brown text-sm font-bold">1</span></span>
+        <h3 class="mt-5 text-lg">{% trans "Cherchez" %}</h3>
+        <p class="mx-auto mt-1 max-w-xs text-sm text-kora-brown/70">{% trans "Choisissez un métier et une ville. Comparez les notes, les photos de réalisations et les tarifs." %}</p>
+      </li>
+      <li data-reveal style="--d:1" class="relative text-center">
+        <span class="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-kora-yellow text-kora-brown shadow-card"><i data-lucide="message-circle" class="h-9 w-9"></i><span class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-kora-brown text-sm font-bold text-white">2</span></span>
+        <h3 class="mt-5 text-lg">{% trans "Contactez" %}</h3>
+        <p class="mx-auto mt-1 max-w-xs text-sm text-kora-brown/70">{% trans "Écrivez sur WhatsApp, passez par la messagerie ou demandez un devis." %}</p>
+      </li>
+      <li data-reveal style="--d:2" class="relative text-center">
+        <span class="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-kora-green text-white shadow-card"><i data-lucide="star" class="h-9 w-9"></i><span class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-kora-brown text-sm font-bold">3</span></span>
+        <h3 class="mt-5 text-lg">{% trans "Notez" %}</h3>
+        <p class="mx-auto mt-1 max-w-xs text-sm text-kora-brown/70">{% trans "Une fois la prestation terminée, laissez votre avis pour aider les prochains clients." %}</p>
+      </li>
+    </ol>
+  </div>
+</section>

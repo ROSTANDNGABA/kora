@@ -1,0 +1,92 @@
+@font-face { font-family: "Poppins"; font-weight: 400; font-display: swap; src: url("../fonts/poppins-latin-400.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 500; font-display: swap; src: url("../fonts/poppins-latin-500.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 600; font-display: swap; src: url("../fonts/poppins-latin-600.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 700; font-display: swap; src: url("../fonts/poppins-latin-700.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 800; font-display: swap; src: url("../fonts/poppins-latin-800.woff2") format("woff2"); }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-kora-cream font-sans text-kora-brown antialiased; }
+  h1, h2, h3, h4 { @apply font-bold text-kora-brown tracking-tight; }
+  :focus-visible { @apply outline-none ring-2 ring-kora-orange ring-offset-2 ring-offset-white; }
+  [x-cloak] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+@layer components {
+  /* Boutons */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]; }
+  .btn-primary { @apply btn bg-kora-orange text-white shadow-soft hover:bg-kora-orange-600; }
+  .btn-secondary { @apply btn bg-kora-brown text-white shadow-soft hover:bg-kora-brown-700; }
+  .btn-outline { @apply btn border border-kora-brown/20 bg-white text-kora-brown hover:border-kora-orange hover:text-kora-orange-600; }
+  .btn-ghost { @apply btn text-kora-brown hover:bg-kora-orange-100; }
+  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+  .btn-whatsapp { @apply btn bg-[#25D366] text-white shadow-soft hover:bg-[#1EBE5A]; }
+  .btn-sm { @apply px-3.5 py-2 text-xs; }
+  .btn-lg { @apply px-7 py-3.5 text-base; }
+
+  /* Formulaires */
+  .input { @apply block w-full rounded-xl border border-kora-brown/15 bg-white px-4 py-2.5 text-sm text-kora-brown placeholder:text-kora-brown/40 shadow-sm focus:border-kora-orange focus:ring-2 focus:ring-kora-orange/30; }
+  .label { @apply mb-1.5 block text-sm font-medium text-kora-brown; }
+  .field-error { @apply mt-1 text-xs font-medium text-red-600; }
+  .help-text { @apply mt-1 text-xs text-kora-brown/60; }
+
+  /* Cartes */
+  .card { @apply rounded-2xl bg-white shadow-soft; }
+  .card-hover { @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-card; }
+
+  /* Chips de filtre */
+  .chip { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-kora-brown/15 bg-white px-4 py-2 text-sm font-medium text-kora-brown transition hover:border-kora-orange hover:text-kora-orange-600; }
+  .chip-active { @apply border-kora-orange bg-kora-orange text-white hover:text-white; }
+
+  /* Badges */
+  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+  .badge-orange { @apply badge bg-kora-orange-100 text-kora-orange-700; }
+  .badge-green { @apply badge bg-kora-green-100 text-kora-green-700; }
+  .badge-yellow { @apply badge bg-kora-yellow-100 text-kora-yellow-600; }
+  .badge-gray { @apply badge bg-kora-brown/10 text-kora-brown; }
+  .badge-red { @apply badge bg-red-100 text-red-700; }
+  .badge-notif { @apply absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-kora-orange px-1 text-[11px] font-bold leading-none text-white ring-2 ring-white; }
+
+  /* Tableaux */
+  .table-kora { @apply w-full text-left text-sm; }
+  .table-kora thead th { @apply bg-kora-orange-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-kora-brown/70; }
+  .table-kora tbody td { @apply border-t border-kora-brown/10 px-4 py-3; }
+  .table-kora tbody tr:hover { @apply bg-kora-orange-50/60; }
+
+  /* Skeleton loader */
+  .skeleton { @apply relative overflow-hidden rounded-xl bg-kora-brown/10; }
+  .skeleton::after { content: ""; @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent; animation: shimmer 1.4s infinite; }
+
+  /* Motif africain subtil (losanges) pour les fonds décoratifs */
+  .pattern-kora {
+    background-image:
+      linear-gradient(135deg, rgba(243,111,33,.08) 25%, transparent 25%),
+      linear-gradient(225deg, rgba(243,111,33,.08) 25%, transparent 25%),
+      linear-gradient(45deg, rgba(243,111,33,.08) 25%, transparent 25%),
+      linear-gradient(315deg, rgba(243,111,33,.08) 25%, transparent 25%);
+    background-size: 28px 28px;
+    background-position: 14px 0, 14px 0, 0 0, 0 0;
+  }
+  .gradient-kora { @apply bg-gradient-to-br from-kora-orange to-kora-yellow; }
+}
+
+@layer utilities {
+  /* Apparition au scroll : actif seulement si JS tourne (classe .js posée dans <head>). */
+  .js [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; transition-delay: calc(var(--d, 0) * 70ms); }
+  .js [data-reveal].is-visible { opacity: 1; transform: none; }
+
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* HTMX : indicateur de chargement */
+.htmx-request .htmx-indicator { opacity: 1; }
+.htmx-indicator { opacity: 0; transition: opacity 150ms ease-in; }

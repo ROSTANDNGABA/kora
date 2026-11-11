@@ -1,0 +1,17 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{{ heading }}{% endblock %}
+{% block page %}
+<div class="max-w-2xl">
+  <a href="{{ back_url }}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Retour" %}</a>
+  <h1 class="mt-2 text-2xl sm:text-3xl">{{ heading }}</h1>
+  <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} class="card mt-6 space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+    {% for field in form %}{% if field.field.widget.input_type == "file" %}
+      <div><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+    {% else %}{% include "components/form_field.html" with field=field %}{% endif %}{% endfor %}
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><a href="{{ back_url }}" class="btn-outline">{% trans "Annuler" %}</a><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+  </form>
+  {% if delete_url %}<div class="mt-4 text-right">{% include "components/admin_action.html" with label="Supprimer cet élément" title="Supprimer cet élément ?" text="Cette action est définitive." action=delete_url next_url=back_url btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}</div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Vérifications" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Vérifications d'identité" %}</h1>
+<nav class="mt-5 flex gap-2" aria-label="{% trans 'Statut' %}">{% for v, l in states %}<a href="?statut={{ v }}" class="chip {% if v == state %}chip-active{% endif %}">{{ l }}</a>{% endfor %}</nav>
+{% if page_obj.object_list %}
+<ul class="mt-5 space-y-3">{% for v in page_obj %}
+  <li class="card flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
+    <div class="min-w-0"><a href="{% url 'dashboard_admin:provider_detail' v.provider_id %}" class="font-semibold text-kora-orange-700 hover:underline">{{ v.provider.business_name }}</a>
+      <p class="text-sm text-kora-brown/70">{{ v.provider.user.email }} · {% trans "envoyé le" %} {{ v.created_at|date:"d/m/Y H:i" }}</p>
+      <p class="mt-1 flex flex-wrap gap-3 text-sm"><a href="{% url 'dashboard_admin:verification_file' v.pk 'identite' %}" target="_blank" rel="noopener" class="font-semibold text-kora-orange-600 hover:underline">{% trans "Pièce d'identité" %}</a>
+        {% if v.activity_proof %}<a href="{% url 'dashboard_admin:verification_file' v.pk 'activite' %}" target="_blank" rel="noopener" class="font-semibold text-kora-orange-600 hover:underline">{% trans "Preuve d'activité" %}</a>{% endif %}</p>
+      {% if v.status != "PENDING" %}<p class="mt-1 text-xs text-kora-brown/60">{{ v.get_status_display }} {% trans "par" %} {{ v.reviewer.email|default:"—" }} {% if v.reason %}· {{ v.reason }}{% endif %}</p>{% endif %}</div>
+    {% if v.status == "PENDING" %}<div class="flex gap-2">
+      {% url 'dashboard_admin:verification_approve' v.pk as u %}{% include "components/admin_action.html" with label="Approuver" title="Approuver ce dossier ?" text="Le badge Vérifié sera attribué et le prestataire prévenu." action=u btn_class="btn-primary btn-sm" %}
+      {% url 'dashboard_admin:verification_reject' v.pk as u %}{% include "components/admin_action.html" with label="Refuser" title="Refuser ce dossier ?" text="Le motif sera transmis au prestataire pour qu'il puisse renvoyer un dossier corrigé." action=u reason="required" confirm_label="Refuser" danger=True %}</div>{% endif %}
+  </li>{% endfor %}</ul>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="badge-check" title="Aucun dossier ici" text="Les nouveaux dossiers de vérification apparaîtront dans cette liste." %}</div>{% endif %}
+{% endblock %}

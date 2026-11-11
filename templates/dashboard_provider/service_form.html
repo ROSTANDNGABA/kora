@@ -1,0 +1,20 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% if service %}{% trans "Modifier le service" %}{% else %}{% trans "Nouveau service" %}{% endif %}{% endblock %}
+{% block page %}
+<div class="max-w-2xl">
+  <a href="{% url 'dashboard_provider:services' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Services et tarifs" %}</a>
+  <h1 class="mt-2 text-2xl sm:text-3xl">{% if service %}{% trans "Modifier le service" %}{% else %}{% trans "Nouveau service" %}{% endif %}</h1>
+  <form method="post" class="card mt-6 space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+    {% include "components/form_field.html" with field=form.title %}
+    {% include "components/form_field.html" with field=form.description %}
+    <div class="grid gap-5 sm:grid-cols-3">
+      {% include "components/form_field.html" with field=form.price_type %}
+      {% include "components/form_field.html" with field=form.amount %}
+      {% include "components/form_field.html" with field=form.duration_minutes %}
+    </div>
+    {% include "components/form_field.html" with field=form.is_active %}
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><a href="{% url 'dashboard_provider:services' %}" class="btn-outline">{% trans "Annuler" %}</a><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+  </form>
+</div>
+{% endblock %}

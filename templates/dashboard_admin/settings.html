@@ -1,0 +1,15 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Paramètres" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Paramètres du site" %}</h1>
+<form method="post" class="card mt-6 max-w-2xl space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+  <h2 class="text-lg">{% trans "Textes" %}</h2>
+  {% include "components/form_field.html" with field=form.site_slogan %}
+  <div class="grid gap-5 sm:grid-cols-2">{% include "components/form_field.html" with field=form.support_whatsapp %}{% include "components/form_field.html" with field=form.contact_email %}</div>
+  <h2 class="pt-2 text-lg">{% trans "Limites de téléversement" %}</h2>
+  <div class="grid gap-5 sm:grid-cols-2">{% include "components/form_field.html" with field=form.upload_max_mb %}{% include "components/form_field.html" with field=form.portfolio_max_items %}</div>
+  <div class="flex justify-end"><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+</form>
+{% endblock %}

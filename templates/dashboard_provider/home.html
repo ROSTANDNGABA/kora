@@ -1,0 +1,58 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Tableau de bord" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% blocktrans with name=profile.business_name %}Bonjour, {{ name }}{% endblocktrans %}</h1>
+
+{% if profile.status == "PENDING" %}
+<div class="mt-4 rounded-2xl bg-kora-yellow-100 p-4 text-sm" role="status"><p class="font-semibold">{% trans "Compte en attente de validation" %}</p>
+  <p class="mt-1">{% trans "Votre profil n'est pas encore visible du public. Complétez-le : l'équipe Kora le valide dès que possible et vous serez notifié." %}</p></div>
+{% elif profile.status == "SUSPENDED" %}
+<div class="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-800" role="alert"><p class="font-semibold">{% trans "Compte suspendu" %}</p>
+  <p class="mt-1">{% trans "Votre fiche n'est plus visible et vous ne recevez plus de demandes." %} {{ profile.status_reason }}</p></div>
+{% elif profile.status == "REJECTED" %}
+<div class="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-800" role="alert"><p class="font-semibold">{% trans "Inscription refusée" %}</p><p class="mt-1">{{ profile.status_reason }}</p></div>
+{% endif %}
+{% if profile.pending_category %}
+<div class="mt-4 rounded-2xl bg-kora-orange-100 p-4 text-sm" role="status">{% blocktrans with name=profile.pending_category.name %}Changement de métier vers « {{ name }} » en attente de validation.{% endblocktrans %}</div>
+{% endif %}
+
+<dl class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Vues du profil" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ profile.views_count }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Clics WhatsApp" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ profile.whatsapp_clicks }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Demandes reçues" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ kpi.received }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Demandes acceptées" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ kpi.accepted }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Note moyenne" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{% if profile.reviews_count %}{{ profile.rating_avg|floatformat:1 }}<span class="text-sm font-medium text-kora-brown/60"> ({{ profile.reviews_count }})</span>{% else %}—{% endif %}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Taux de réponse" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{% if kpi.reply_rate is not None %}{{ kpi.reply_rate }} %{% else %}—{% endif %}</dd></div>
+</dl>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-[1fr_22rem]">
+  <section class="card p-5" aria-labelledby="h-chart">
+    <h2 id="h-chart" class="text-lg">{% trans "Les 30 derniers jours" %}</h2>
+    {% include "dashboard/_line_chart.html" with chart_id="chart-home" chart_data_id="chart-home-data" %}
+  </section>
+  <section class="card p-5" aria-labelledby="h-complete">
+    <h2 id="h-complete" class="text-lg">{% trans "Profil complété à" %} {{ completeness }} %</h2>
+    <div class="mt-2 h-2 overflow-hidden rounded-full bg-kora-brown/10"><div class="h-full rounded-full bg-kora-green" style="width: {{ completeness }}%"></div></div>
+    <ul class="mt-4 space-y-2 text-sm">
+      {% for c in checklist %}
+      <li class="flex items-center gap-2">{% if c.done %}<i data-lucide="check-circle-2" class="h-4 w-4 text-kora-green"></i><span class="text-kora-brown/60 line-through">{{ c.label }}</span>
+        {% else %}<i data-lucide="circle" class="h-4 w-4 text-kora-brown/30"></i><a href="{{ c.url }}" class="font-medium text-kora-orange-700 hover:underline">{{ c.label }}</a>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="mt-6" aria-labelledby="h-latest">
+  <div class="flex items-center justify-between"><h2 id="h-latest" class="text-lg">{% trans "Dernières demandes" %}</h2><a href="{% url 'dashboard_provider:requests' %}" class="text-sm font-semibold text-kora-orange-600 hover:underline">{% trans "Tout voir" %}</a></div>
+  {% if latest %}
+  <ul class="mt-3 space-y-2">
+    {% for r in latest %}
+    <li><a href="{% url 'dashboard_provider:request_detail' r.pk %}" class="card card-hover flex items-center justify-between gap-3 p-4">
+      <span class="min-w-0"><span class="block truncate font-semibold">{{ r.client.public_name }}</span><span class="block truncate text-sm text-kora-brown/70">{{ r.description|truncatechars:80 }}</span></span>
+      <span class="{{ r.status|request_badge }} shrink-0">{{ r.get_status_display }}</span></a></li>
+    {% endfor %}
+  </ul>
+  {% else %}<div class="mt-3">{% include "components/empty_state.html" with icon="inbox" title="Aucune demande pour le moment" text="Complétez votre profil et ajoutez des photos : les clients vous trouveront plus facilement." %}</div>{% endif %}
+</section>
+{% endblock %}

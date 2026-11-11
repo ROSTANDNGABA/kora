@@ -1,0 +1,18 @@
+{% load kora_ui %}
+{# Étoiles de notation. Paramètres : rating, reviews (optionnel), size (classes) #}
+<span class="inline-flex items-center gap-1" role="img" aria-label="Note {{ rating|default:0 }} sur 5">
+  <span class="inline-flex">
+    {% for s in rating|star_states %}
+      <svg class="{{ size|default:'h-4 w-4' }} {% if s == 'empty' %}text-kora-brown/20{% else %}text-kora-yellow{% endif %}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        {% if s == "half" %}
+        <defs><linearGradient id="half-{{ forloop.counter }}"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="rgba(74,31,14,.2)"/></linearGradient></defs>
+        <path fill="url(#half-{{ forloop.counter }})" d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L1.4 7.8l6-.8z"/>
+        {% else %}
+        <path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L1.4 7.8l6-.8z"/>
+        {% endif %}
+      </svg>
+    {% endfor %}
+  </span>
+  {% if rating %}<span class="text-sm font-semibold">{{ rating|floatformat:1 }}</span>{% endif %}
+  {% if reviews is not None %}<span class="text-xs text-kora-brown/60">({{ reviews }})</span>{% endif %}
+</span>

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load i18n kora_ui %}
+{% block title %}Design system{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-6">
+  <header>
+    <h1 class="text-3xl">Design system Kora</h1>
+    <p class="mt-1 text-sm text-kora-brown/70">Visible uniquement avec DEBUG=True. Chaque composant est un partial réutilisable dans <code>templates/components/</code>.</p>
+  </header>
+
+  <section aria-labelledby="ds-colors">
+    <h2 id="ds-colors" class="mb-4 text-xl">Couleurs</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div class="card overflow-hidden"><div class="h-16 bg-kora-orange"></div><p class="p-3 text-xs font-semibold">Orange #F36F21<br><span class="font-normal text-kora-brown/60">Action principale</span></p></div>
+      <div class="card overflow-hidden"><div class="h-16 bg-kora-brown"></div><p class="p-3 text-xs font-semibold">Brun #4A1F0E<br><span class="font-normal text-kora-brown/60">Titres, secondaire</span></p></div>
+      <div class="card overflow-hidden"><div class="h-16 bg-kora-yellow"></div><p class="p-3 text-xs font-semibold">Jaune #F5B800<br><span class="font-normal text-kora-brown/60">Accent</span></p></div>
+      <div class="card overflow-hidden"><div class="h-16 bg-kora-green"></div><p class="p-3 text-xs font-semibold">Vert #5B9E2D<br><span class="font-normal text-kora-brown/60">Accent</span></p></div>
+      <div class="card overflow-hidden"><div class="h-16 border-b border-kora-brown/10 bg-kora-cream"></div><p class="p-3 text-xs font-semibold">Crème #FFF4EA<br><span class="font-normal text-kora-brown/60">Fond</span></p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-buttons">
+    <h2 id="ds-buttons" class="mb-4 text-xl">Boutons et badges</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="btn-primary">Principal</button>
+      <button class="btn-secondary">Secondaire</button>
+      <button class="btn-outline">Contour</button>
+      <button class="btn-ghost">Discret</button>
+      <button class="btn-danger">Supprimer</button>
+      <button class="btn-primary" disabled>Désactivé</button>
+      {% include "components/whatsapp_button.html" with number="237600000000" message="Bonjour, je vous contacte depuis Kora." %}
+    </div>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <span class="badge-orange">En attente</span><span class="badge-green">Actif</span><span class="badge-yellow">Devis reçu</span><span class="badge-gray">Terminée</span><span class="badge-red">Refusée</span>
+      {% include "components/verified_badge.html" %}
+      <span class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-soft"><i data-lucide="bell" class="h-5 w-5"></i><span class="badge-notif">3</span></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-chips" x-data="{ tab: 'Tous' }">
+    <h2 id="ds-chips" class="mb-4 text-xl">Chips de filtre</h2>
+    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist">
+      <template x-for="l in ['Tous','Couturiers','Couturières','Stylistes','Retouches','Modélistes']" :key="l">
+        <button type="button" class="chip" :class="{ 'chip-active': tab === l }" @click="tab = l" x-text="l"></button>
+      </template>
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-cat">
+    <h2 id="ds-cat" class="mb-4 text-xl">Cartes catégorie</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      {% for c in categories %}{% include "components/category_card.html" with name=c.name icon=c.icon color=c.color href="#" %}{% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-prov">
+    <h2 id="ds-prov" class="mb-4 text-xl">Cartes prestataire et étoiles</h2>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {% for p in providers %}{% include "components/provider_card.html" with p=p contact_url="#" favorite=forloop.first %}{% endfor %}
+    </div>
+    <div class="mt-4 flex flex-wrap gap-6">
+      {% include "components/stars.html" with rating=5 reviews=12 %}
+      {% include "components/stars.html" with rating=3.5 reviews=8 %}
+      {% include "components/stars.html" with rating=1 reviews=1 %}
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-forms">
+    <h2 id="ds-forms" class="mb-4 text-xl">Formulaire</h2>
+    <div class="card max-w-md space-y-4 p-6">
+      <div><label class="label" for="ds-name">Nom commercial</label><input id="ds-name" class="input" placeholder="Atelier Mballa"><p class="help-text">Affiché sur votre fiche publique.</p></div>
+      <div><label class="label" for="ds-city">Ville</label><select id="ds-city" class="input"><option>Yaoundé</option><option>Douala</option></select></div>
+      <div><label class="label" for="ds-err">E-mail</label><input id="ds-err" class="input border-red-400" value="pas-un-email"><p class="field-error">Entrez une adresse e-mail valide.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ds-table">
+    <h2 id="ds-table" class="mb-4 text-xl">Tableau avec recherche, tri et pagination</h2>
+    {% include "components/table_toolbar.html" with placeholder="Rechercher un prestataire…" %}
+    <div class="card overflow-x-auto">
+      <table class="table-kora">
+        <thead><tr>{% include "components/sort_th.html" with field="name" label="Nom" %}{% include "components/sort_th.html" with field="city" label="Ville" %}<th scope="col">Statut</th></tr></thead>
+        <tbody>
+          {% for p in providers %}<tr><td class="font-medium">{{ p.name }}</td><td>{{ p.city }}</td><td><span class="badge-green">Actif</span></td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-2 text-xs text-kora-brown/60">La pagination s'affiche via <code>components/pagination.html</code> dès que <code>page_obj</code> a plusieurs pages.</p>
+  </section>
+
+  <section aria-labelledby="ds-states" x-data="{ open: false }">
+    <h2 id="ds-states" class="mb-4 text-xl">États vides, chargement, modale et toasts</h2>
+    <div class="grid gap-4 md:grid-cols-2">
+      {% include "components/empty_state.html" with icon="heart" title="Aucun favori pour l'instant" text="Touchez le cœur sur une fiche pour la retrouver ici." cta_label="Explorer" cta_url="#" %}
+      <div class="space-y-3">{% include "components/skeleton_card.html" %}{% include "components/skeleton_card.html" %}</div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button class="btn-danger" @click="open = true">Ouvrir la modale</button>
+      <button class="btn-outline" @click="$dispatch('kora-toast', {type:'success', text:'Profil enregistré.'})">Toast succès</button>
+      <button class="btn-outline" @click="$dispatch('kora-toast', {type:'error', text:'Une erreur est survenue.'})">Toast erreur</button>
+    </div>
+    {% include "components/modal.html" with title="Suspendre ce prestataire ?" text="Il disparaîtra de la recherche et ne recevra plus de demandes." confirm_label="Suspendre" form_action="#" danger=True %}
+  </section>
+</div>
+{% endblock %}

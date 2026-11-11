@@ -1,0 +1,24 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Vérification" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Vérification du compte" %}</h1>
+<div class="mt-4 max-w-2xl space-y-6">
+  {% if profile.is_verified %}
+  <div class="flex items-center gap-3 rounded-2xl bg-kora-green-100 p-4 text-sm" role="status"><i data-lucide="badge-check" class="h-6 w-6 text-kora-green-700"></i><p>{% trans "Votre compte est vérifié. Le badge s'affiche sur votre fiche et dans les résultats de recherche." %}</p></div>
+  {% elif pending %}
+  <div class="rounded-2xl bg-kora-yellow-100 p-4 text-sm" role="status">{% trans "Votre dossier est en cours d'examen. Vous serez notifié dès qu'il aura été traité." %}</div>
+  {% else %}
+  <p class="text-sm text-kora-brown/70">{% trans "Envoyez une pièce d'identité pour obtenir le badge « Vérifié ». Les documents restent privés, seule l'équipe Kora peut les consulter." %}</p>
+  <form method="post" enctype="multipart/form-data" class="card space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+    <div><label class="label" for="{{ form.id_document.id_for_label }}">{{ form.id_document.label }}</label>{{ form.id_document }}<p class="help-text">{% trans "PDF, JPG ou PNG." %}</p>{% for e in form.id_document.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+    <div><label class="label" for="{{ form.activity_proof.id_for_label }}">{{ form.activity_proof.label }}</label>{{ form.activity_proof }}<p class="help-text">{% trans "Facture, carte professionnelle, photo de l'atelier…" %}</p>{% for e in form.activity_proof.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+    <button type="submit" class="btn-primary">{% trans "Envoyer mon dossier" %}</button>
+  </form>
+  {% endif %}
+  {% if history %}
+  <section class="card p-5"><h2 class="text-lg">{% trans "Historique" %}</h2>
+    <ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for v in history %}<li class="py-3"><span class="font-semibold">{{ v.created_at|date:"d/m/Y" }}</span> · {{ v.get_status_display }}{% if v.reason %}<p class="text-kora-brown/70">{{ v.reason }}</p>{% endif %}</li>{% endfor %}</ul></section>
+  {% endif %}
+</div>
+{% endblock %}

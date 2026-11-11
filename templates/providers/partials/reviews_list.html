@@ -1,0 +1,10 @@
+{% load i18n %}
+{% for review in review_items %}{% include "providers/partials/review_item.html" %}{% endfor %}
+{% if next_reviews_page %}
+  <div class="pt-4 text-center">
+    <button type="button" class="btn-outline btn-sm"
+            hx-get="{% url 'providers:reviews' provider.slug %}?page={{ next_reviews_page }}" hx-target="closest div" hx-swap="outerHTML">
+      {% trans "Voir plus d'avis" %}
+    </button>
+  </div>
+{% endif %}

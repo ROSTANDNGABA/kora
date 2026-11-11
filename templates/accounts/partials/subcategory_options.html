@@ -1,0 +1,12 @@
+{% if subcategories %}
+  <div class="flex flex-wrap gap-2">
+    {% for s in subcategories %}
+      <label class="chip cursor-pointer has-[:checked]:border-kora-orange has-[:checked]:bg-kora-orange has-[:checked]:text-white">
+        <input type="checkbox" name="subcategories" value="{{ s.pk }}" class="sr-only" {% if s.pk|stringformat:"s" in selected_subcategories %}checked{% endif %}>
+        {{ s.name }}
+      </label>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-sm text-kora-brown/60">Choisissez d'abord votre métier pour voir les spécialités.</p>
+{% endif %}

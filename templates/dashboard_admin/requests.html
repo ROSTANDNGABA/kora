@@ -1,0 +1,21 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Demandes" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Demandes" %}</h1>
+  <a href="{% url_with_params export='csv' page='' %}" class="btn-outline btn-sm"><i data-lucide="download" class="h-4 w-4"></i>{% trans "Exporter (CSV)" %}</a></div>
+<form method="get" class="mt-5 flex flex-wrap items-end gap-3">
+  <div><label class="label" for="q">{% trans "Recherche" %}</label><input id="q" type="search" name="q" value="{{ request.GET.q }}" class="input w-56" placeholder="{% trans 'N°, client, prestataire…' %}"></div>
+  <div><label class="label" for="st">{% trans "Statut" %}</label><select id="st" name="statut" class="input"><option value="">{% trans "Tous" %}</option>{% for v, l in statuses %}<option value="{{ v }}" {% if request.GET.statut == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label class="label" for="cat">{% trans "Catégorie" %}</label><select id="cat" name="categorie" class="input"><option value="">{% trans "Toutes" %}</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.categorie == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div><label class="label" for="vil">{% trans "Ville" %}</label><select id="vil" name="ville" class="input"><option value="">{% trans "Toutes" %}</option>{% for c in cities %}<option value="{{ c.pk }}" {% if request.GET.ville == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+  <button class="btn-secondary" type="submit">{% trans "Filtrer" %}</button><a href="{% url 'dashboard_admin:requests' %}" class="btn-ghost">{% trans "Réinitialiser" %}</a>
+</form>
+{% if page_obj.object_list %}
+<div class="card mt-5 overflow-x-auto"><table class="table-kora">
+  <thead><tr><th scope="col">N°</th>{% include "components/sort_th.html" with field="created_at" label="Date" %}<th scope="col">{% trans "Client" %}</th><th scope="col">{% trans "Prestataire" %}</th><th scope="col">{% trans "Ville" %}</th>{% include "components/sort_th.html" with field="status" label="Statut" %}</tr></thead>
+  <tbody>{% for r in page_obj %}<tr><td><a href="{% url 'dashboard_admin:request_detail' r.pk %}" class="font-semibold text-kora-orange-700 hover:underline">#{{ r.pk }}</a></td><td>{{ r.created_at|date:"d/m/Y" }}</td>
+    <td>{{ r.client.get_full_name|default:r.client.email }}</td><td>{{ r.provider.business_name }}</td><td>{{ r.city.name }}</td><td><span class="{{ r.status|request_badge }}">{{ r.get_status_display }}</span></td></tr>{% endfor %}</tbody></table></div>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="inbox" title="Aucune demande" text="Aucune demande ne correspond à ces filtres." %}</div>{% endif %}
+{% endblock %}

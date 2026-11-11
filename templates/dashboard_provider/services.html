@@ -1,0 +1,23 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Services et tarifs" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Services et tarifs" %}</h1>
+  <a href="{% url 'dashboard_provider:service_new' %}" class="btn-primary"><i data-lucide="plus" class="h-4 w-4"></i>{% trans "Ajouter un service" %}</a></div>
+{% if services %}
+<ul class="mt-6 space-y-3">
+  {% for s in services %}
+  <li class="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between" x-data="{ open: false }">
+    <div class="min-w-0"><p class="font-semibold">{{ s.title }} {% if not s.is_active %}<span class="badge-gray">{% trans "Masqué" %}</span>{% endif %}</p>
+      <p class="text-sm text-kora-brown/70">{% if s.price_type == "QUOTE" or not s.amount %}{% trans "Sur devis" %}{% else %}{% if s.price_type == "FROM" %}{% trans "dès" %} {% endif %}{{ s.amount|fcfa }}{% endif %}{% if s.duration_minutes %} · {{ s.duration_minutes|duration_min }}{% endif %}</p></div>
+    <div class="flex flex-wrap gap-2">
+      <form method="post" action="{% url 'dashboard_provider:service_toggle' s.pk %}">{% csrf_token %}<button class="btn-outline btn-sm">{% if s.is_active %}{% trans "Masquer" %}{% else %}{% trans "Afficher" %}{% endif %}</button></form>
+      <a href="{% url 'dashboard_provider:service_edit' s.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+      <button type="button" class="btn-ghost btn-sm text-red-600 hover:bg-red-50" @click="open = true">{% trans "Supprimer" %}</button>
+      {% url 'dashboard_provider:service_delete' s.pk as del_url %}{% include "components/modal.html" with title="Supprimer ce service ?" text="Il disparaîtra de votre fiche." confirm_label="Supprimer" form_action=del_url danger=True %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<div class="mt-6">{% url 'dashboard_provider:service_new' as new_url %}{% include "components/empty_state.html" with icon="tags" title="Aucun service" text="Listez vos prestations avec leur tarif : les clients comparent les prix avant de vous contacter." cta_label="Ajouter un service" cta_url=new_url %}</div>{% endif %}
+{% endblock %}

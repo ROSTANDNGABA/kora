@@ -1,0 +1,26 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Communication" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Communication" %}</h1>
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <section class="card p-5 sm:p-6" aria-labelledby="h-an"><h2 id="h-an" class="text-lg">{% trans "Annonce globale" %}</h2>
+    <p class="mt-1 text-sm text-kora-brown/70">{% trans "Chaque destinataire reçoit une notification. Destinataires actuels :" %} {{ counts.ALL }} {% trans "au total" %}, {{ counts.CLIENTS }} {% trans "clients" %}, {{ counts.PROVIDERS }} {% trans "prestataires" %}.</p>
+    <form method="post" class="mt-4 space-y-4" x-data="{ confirm: false }" x-ref="f" novalidate>{% csrf_token %}
+      {% for field in form %}{% include "components/form_field.html" with field=field %}{% endfor %}
+      <button type="button" class="btn-primary" @click="$refs.f.reportValidity() && (confirm = true)">{% trans "Envoyer l'annonce" %}</button>
+      <div x-show="confirm" x-cloak class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label="{% trans 'Confirmer l\'envoi' %}" @keydown.escape.window="confirm = false">
+        <div class="absolute inset-0 bg-kora-brown/50 backdrop-blur-sm" @click="confirm = false"></div>
+        <div class="relative w-full max-w-md rounded-t-3xl bg-white p-6 shadow-pop sm:rounded-3xl"><h2 class="text-lg">{% trans "Envoyer cette annonce ?" %}</h2><p class="mt-2 text-sm text-kora-brown/70">{% trans "Elle sera envoyée immédiatement à tous les destinataires choisis. Cette action ne peut pas être annulée." %}</p>
+          <div class="mt-6 flex justify-end gap-2"><button type="button" class="btn-outline" @click="confirm = false">{% trans "Annuler" %}</button><button type="submit" class="btn-primary">{% trans "Envoyer" %}</button></div></div></div>
+    </form></section>
+  <section class="card p-5 sm:p-6" aria-labelledby="h-tg"><h2 id="h-tg" class="text-lg">{% trans "Notification ciblée" %}</h2><p class="mt-1 text-sm text-kora-brown/70">{% trans "À un seul utilisateur, identifié par son e-mail." %}</p>
+    <form method="post" action="{% url 'dashboard_admin:notification_send' %}" class="mt-4 space-y-4">{% csrf_token %}
+      {% for field in targeted_form %}{% include "components/form_field.html" with field=field %}{% endfor %}
+      <button type="submit" class="btn-secondary">{% trans "Envoyer la notification" %}</button></form></section>
+</div>
+<section class="card mt-6 p-5" aria-labelledby="h-hi"><h2 id="h-hi" class="text-lg">{% trans "Annonces envoyées" %}</h2>
+  {% if history.object_list %}<ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for a in history %}<li class="py-3"><p class="font-semibold">{{ a.title }} <span class="badge-gray">{{ a.get_audience_display }}</span></p><p class="text-kora-brown/70">{{ a.body|truncatechars:140 }}</p><p class="text-xs text-kora-brown/60">{{ a.created_at|date:"d/m/Y H:i" }} · {{ a.recipients_count }} {% trans "destinataire(s)" %} · {{ a.created_by.email|default:"—" }}</p></li>{% endfor %}</ul>
+  {% with page_obj=history %}{% include "components/pagination.html" %}{% endwith %}
+  {% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucune annonce envoyée pour l'instant." %}</p>{% endif %}</section>
+{% endblock %}

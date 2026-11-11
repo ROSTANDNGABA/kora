@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Inscription" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-10 sm:py-16">
+  <h1 class="text-center text-3xl">{% trans "Rejoignez Kora" %}</h1>
+  <p class="mt-2 text-center text-kora-brown/70">{% trans "Vous êtes à la recherche d'un professionnel, ou vous proposez vos services ?" %}</p>
+  <div class="mt-8 grid gap-4 sm:grid-cols-2">
+    <a href="{% url 'accounts:signup_client' %}" class="card card-hover flex flex-col gap-3 p-6">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-kora-orange text-white"><i data-lucide="search" class="h-6 w-6"></i></span>
+      <h2 class="text-lg">{% trans "Je cherche un artisan" %}</h2>
+      <p class="text-sm text-kora-brown/70">{% trans "Trouvez, contactez et notez des prestataires près de chez vous." %}</p>
+      <span class="btn-primary mt-auto">{% trans "Créer un compte client" %}</span>
+    </a>
+    <a href="{% url 'accounts:signup_provider' %}" class="card card-hover flex flex-col gap-3 p-6">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-kora-brown text-white"><i data-lucide="hammer" class="h-6 w-6"></i></span>
+      <h2 class="text-lg">{% trans "Je suis artisan" %}</h2>
+      <p class="text-sm text-kora-brown/70">{% trans "Présentez votre savoir-faire et recevez des demandes de clients." %}</p>
+      <span class="btn-secondary mt-auto">{% trans "Créer un compte artisan" %}</span>
+    </a>
+  </div>
+  <p class="mt-6 text-center text-sm">{% trans "Déjà inscrit ?" %} <a href="{% url 'accounts:login' %}" class="font-medium text-kora-orange-600 hover:underline">{% trans "Se connecter" %}</a></p>
+</div>
+{% endblock %}

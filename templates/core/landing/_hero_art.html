@@ -1,0 +1,35 @@
+{# Illustration du hero : kora stylisée, fiche prestataire et bulles de métiers (décor, masqué aux lecteurs d'écran). #}
+<div class="relative mx-auto h-[26rem] w-full max-w-md" aria-hidden="true">
+  <svg class="absolute inset-0 h-full w-full" viewBox="0 0 400 420" fill="none">
+    <path d="M70 80c40-60 150-70 220-20s80 140 30 200-160 90-230 30S30 140 70 80z" fill="#F36F21" opacity=".92"/>
+    <path d="M110 330c60 50 160 40 210-20" stroke="#F5B800" stroke-width="14" stroke-linecap="round" opacity=".8"/>
+    <!-- kora : calebasse, manche et cordes -->
+    <circle cx="300" cy="330" r="62" fill="#4A1F0E"/>
+    <circle cx="300" cy="330" r="46" fill="#8B5A2B" opacity=".6"/>
+    <rect x="296" y="90" width="8" height="240" rx="4" fill="#4A1F0E"/>
+    <g stroke="#FFF4EA" stroke-width="1.6" opacity=".85">
+      <path d="M300 300L274 96M300 300L282 96M300 300L290 96M300 300L310 96M300 300L318 96M300 300L326 96"/>
+    </g>
+  </svg>
+
+  <div class="absolute left-2 top-14 w-64 -rotate-3 rounded-3xl bg-white p-4 shadow-pop">
+    <div class="flex items-center gap-3">
+      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-kora-orange to-kora-yellow text-lg font-bold text-white">AM</span>
+      <div class="min-w-0">
+        <p class="flex items-center gap-1 truncate text-sm font-bold">Atelier Mballa
+          <svg class="h-4 w-4 text-kora-verified" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.6 2 3.3-.2 1.2 3 2.8 1.8-.8 3.2 1.1 3.1-2.5 2.2-.6 3.2-3.3.4L12 22.5l-2.8-1.9-3.3-.4-.6-3.2-2.5-2.2 1.1-3.1-.8-3.2 2.8-1.8 1.2-3 3.3.2z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.9" stroke="#fff" stroke-width="2" fill="none"/></svg>
+        </p>
+        <p class="text-xs text-kora-brown/60">Couturier · Yaoundé</p>
+      </div>
+    </div>
+    <div class="mt-3 flex items-center gap-1 text-kora-yellow">
+      {% for n in "12345" %}<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L1.4 7.8l6-.8z"/></svg>{% endfor %}
+      <span class="ml-1 text-xs font-semibold text-kora-brown">4,9 (124)</span>
+    </div>
+    <div class="mt-3 rounded-xl bg-[#25D366] py-2 text-center text-xs font-semibold text-white">Contacter sur WhatsApp</div>
+  </div>
+
+  <span class="absolute right-6 top-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-kora-orange shadow-card"><i data-lucide="wrench" class="h-8 w-8"></i></span>
+  <span class="absolute bottom-24 left-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-kora-green text-white shadow-card"><i data-lucide="chef-hat" class="h-7 w-7"></i></span>
+  <span class="absolute bottom-10 right-28 flex h-14 w-14 items-center justify-center rounded-2xl bg-kora-yellow text-kora-brown shadow-card"><i data-lucide="scissors" class="h-7 w-7"></i></span>
+</div>

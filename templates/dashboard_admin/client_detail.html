@@ -1,0 +1,28 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{{ client.get_full_name|default:client.email }}{% endblock %}
+{% block page %}
+<a href="{% url 'dashboard_admin:clients' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Clients" %}</a>
+<div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl sm:text-3xl">{{ client.get_full_name|default:client.email }} {% if client.is_active %}<span class="badge-green align-middle">{% trans "Actif" %}</span>{% else %}<span class="badge-red align-middle">{% trans "Suspendu" %}</span>{% endif %}</h1>
+  <div class="flex flex-wrap gap-2">
+    {% if client.is_active %}
+      {% url 'dashboard_admin:client_suspend' client.pk as u %}{% include "components/admin_action.html" with label="Suspendre" title="Suspendre ce compte ?" text="Le client ne pourra plus se connecter. Il en sera informé avec le motif." action=u reason="required" btn_class="btn-outline btn-sm" confirm_label="Suspendre" danger=True %}
+    {% else %}
+      {% url 'dashboard_admin:client_reactivate' client.pk as u %}{% include "components/admin_action.html" with label="Réactiver" title="Réactiver ce compte ?" action=u btn_class="btn-primary btn-sm" %}
+    {% endif %}
+    {% url 'dashboard_admin:client_delete' client.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer définitivement ce compte ?" text="Toutes ses demandes, avis et messages seront effacés. Cette action est irréversible." action=u btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer définitivement" danger=True %}
+  </div>
+</div>
+<dl class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "E-mail" %}</dt><dd class="mt-1 break-all text-sm font-medium">{{ client.email }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Téléphone" %}</dt><dd class="mt-1 text-sm font-medium">{{ client.phone|default:"—" }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Inscrit le" %}</dt><dd class="mt-1 text-sm font-medium">{{ client.date_joined|date:"d/m/Y" }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Avis écrits / signalements faits" %}</dt><dd class="mt-1 text-sm font-medium">{{ reviews_count }} / {{ reports_made }}</dd></div>
+</dl>
+<section class="card mt-6 p-5" aria-labelledby="h-h"><h2 id="h-h" class="text-lg">{% trans "Historique des demandes" %}</h2>
+  {% if requests %}<ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for r in requests %}
+    <li class="flex items-center justify-between gap-3 py-2"><a href="{% url 'dashboard_admin:request_detail' r.pk %}" class="min-w-0 truncate hover:underline">#{{ r.pk }} · {{ r.provider.business_name }} · {{ r.description|truncatechars:50 }}</a><span class="{{ r.status|request_badge }} shrink-0">{{ r.get_status_display }}</span></li>{% endfor %}</ul>
+  {% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucune demande." %}</p>{% endif %}</section>
+{% if history %}<section class="card mt-6 p-5"><h2 class="text-lg">{% trans "Actions de l'équipe sur ce compte" %}</h2><ul class="mt-3 divide-y divide-kora-brown/10 text-sm">{% for e in history %}<li class="py-2"><code class="text-xs">{{ e.action }}</code> · {{ e.actor.email|default:"—" }} · {{ e.created_at|date:"d/m/Y H:i" }}</li>{% endfor %}</ul></section>{% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+{% load kora_ui %}
+{# Bouton WhatsApp. Paramètres : number, message, label, extra_attrs. Le comptage de clic sera ajouté avec les fiches (phase 3). #}
+{% whatsapp_url number message as wa %}
+{% if wa %}
+<a href="{{ wa }}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp {{ classes }}" {{ extra_attrs|safe }}>
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 00-8.5 14.9L2 22l5.25-1.5A9.9 9.9 0 1012.04 2zm5.8 14.1c-.25.7-1.45 1.35-2 1.4-.5.05-1.1.2-3.7-.8-3.1-1.2-5.1-4.4-5.25-4.6-.15-.2-1.25-1.65-1.25-3.15s.8-2.25 1.1-2.55c.25-.3.6-.35.8-.35h.55c.2 0 .4 0 .6.45.25.55.8 1.95.85 2.1.05.15.1.3 0 .5-.1.2-.15.3-.3.5-.15.15-.3.35-.45.5-.15.15-.3.3-.15.6.15.3.7 1.15 1.5 1.85 1 .9 1.9 1.2 2.2 1.3.3.15.45.1.65-.1.2-.25.75-.85.95-1.15.2-.3.4-.25.65-.15.25.1 1.6.75 1.9.9.3.15.45.2.55.3.1.1.1.65-.15 1.35z"/></svg>
+  {{ label|default:"Contacter sur WhatsApp" }}
+</a>
+{% endif %}

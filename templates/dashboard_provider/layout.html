@@ -1,0 +1,17 @@
+{% extends "dashboard/shell.html" %}
+{% load i18n dashboard_ui kora_ui %}
+{% block home_url %}{% url 'dashboard_provider:home' %}{% endblock %}
+{% block sidebar_identity %}
+  {% with p=user.provider_profile %}
+  {% if p.logo %}<img src="{{ p.logo.url }}" alt="" class="h-10 w-10 shrink-0 rounded-xl object-cover">{% else %}<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-kora-orange text-sm font-bold text-white">{{ p.business_name|initials }}</span>{% endif %}
+  <div class="min-w-0" :class="collapsed && 'lg:hidden'">
+    <p class="truncate text-sm font-semibold">{{ p.business_name }}</p>
+    <span class="badge {% if p.status == 'ACTIVE' %}badge-green{% elif p.status == 'PENDING' %}badge-orange{% else %}badge-red{% endif %}">{{ p.get_status_display }}</span>
+  </div>
+  {% endwith %}
+{% endblock %}
+{% block sidebar_nav %}{% provider_sidebar as items %}{% include "dashboard/_sidebar_links.html" with items=items %}{% endblock %}
+{% block profile_menu %}
+  {% if user.provider_profile.is_public %}<a href="{{ user.provider_profile.get_absolute_url }}" class="block rounded-xl px-3 py-2 text-sm hover:bg-kora-orange-100">{% trans "Ma fiche publique" %}</a>{% endif %}
+  <a href="{% url 'dashboard_provider:settings' %}" class="block rounded-xl px-3 py-2 text-sm hover:bg-kora-orange-100">{% trans "Paramètres" %}</a>
+{% endblock %}

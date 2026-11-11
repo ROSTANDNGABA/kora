@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Accès refusé" %}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-xl px-4 py-20 text-center">
+  <p class="text-6xl font-extrabold text-kora-orange">403</p>
+  <h1 class="mt-2 text-2xl">{% trans "Accès refusé" %}</h1>
+  <p class="mt-2 text-kora-brown/70">{% trans "Vous n'avez pas les droits nécessaires pour voir cette page." %}</p>
+  <a href="{% if user.is_authenticated %}{{ user.get_home_url }}{% else %}{% url 'core:home' %}{% endif %}" class="btn-primary mt-6">{% trans "Retour à mon espace" %}</a>
+</div>
+{% endblock %}

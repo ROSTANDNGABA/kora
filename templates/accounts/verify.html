@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Vérification" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-md px-4 py-10 sm:py-16">
+  <div class="card p-6 sm:p-8">
+    <h1 class="text-2xl">{% trans "Vérifiez votre adresse e-mail" %}</h1>
+    <p class="mt-1 text-sm text-kora-brown/70">{% blocktrans with email=user.email %}Entrez le code à 6 chiffres envoyé à {{ email }}.{% endblocktrans %}</p>
+    <form method="post" class="mt-6 space-y-4" novalidate>
+      {% csrf_token %}
+      {% include "components/form_field.html" with field=form.code %}
+      <button type="submit" class="btn-primary w-full">{% trans "Valider" %}</button>
+    </form>
+    <div class="mt-5 flex items-center justify-between text-sm">
+      <form method="post" action="{% url 'accounts:verify_resend' %}">{% csrf_token %}<button type="submit" class="font-medium text-kora-orange-600 hover:underline">{% trans "Renvoyer le code" %}</button></form>
+      <a href="{{ user.get_home_url }}" class="text-kora-brown/70 hover:underline">{% trans "Plus tard" %}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

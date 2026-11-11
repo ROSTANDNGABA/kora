@@ -1,0 +1,27 @@
+{% load i18n %}
+<section class="bg-white px-4 py-16 sm:px-6 lg:px-8">
+  <div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
+    <article data-reveal class="rounded-3xl bg-kora-orange-50 p-7 sm:p-9">
+      <span class="badge-orange">{% trans "Pour les clients" %}</span>
+      <h2 class="mt-3 text-2xl">{% trans "Trouver la bonne personne, sans bouche-à-oreille" %}</h2>
+      <ul class="mt-5 space-y-3 text-sm text-kora-brown/80 sm:text-base">
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-green"></i>{% trans "Des profils classés par métier et par ville." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-green"></i>{% trans "Photos de réalisations et tarifs affichés avant de contacter." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-green"></i>{% trans "Contact direct sur WhatsApp, sans intermédiaire." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-green"></i>{% trans "Avis laissés seulement après une prestation terminée." %}</li>
+      </ul>
+      <a href="{% url 'accounts:signup_client' %}" class="btn-primary mt-7">{% trans "Créer un compte client" %}</a>
+    </article>
+    <article data-reveal style="--d:1" class="rounded-3xl bg-kora-brown p-7 text-white sm:p-9">
+      <span class="badge bg-white/15 text-white">{% trans "Pour les artisans" %}</span>
+      <h2 class="mt-3 text-2xl text-white">{% trans "Montrer votre travail à ceux qui vous cherchent" %}</h2>
+      <ul class="mt-5 space-y-3 text-sm text-white/85 sm:text-base">
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-yellow"></i>{% trans "Une page à votre nom, avec vos réalisations et vos tarifs." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-yellow"></i>{% trans "Les demandes de devis arrivent dans votre espace." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-yellow"></i>{% trans "Un badge « vérifié » après contrôle de vos justificatifs." %}</li>
+        <li class="flex gap-3"><i data-lucide="check-circle-2" class="mt-0.5 h-5 w-5 shrink-0 text-kora-yellow"></i>{% trans "Vos visites et vos contacts, chiffrés semaine après semaine." %}</li>
+      </ul>
+      <a href="{% url 'accounts:signup_provider' %}" class="btn-primary mt-7">{% trans "Créer mon compte artisan" %}</a>
+    </article>
+  </div>
+</section>

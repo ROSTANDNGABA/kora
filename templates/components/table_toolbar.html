@@ -1,0 +1,8 @@
+{% load kora_ui i18n %}
+{# Barre de recherche d'un tableau (GET). Le tri se fait via <th> avec les liens url_with_params sort=… #}
+<form method="get" class="mb-4 flex gap-2">
+  {% for key, value in request.GET.items %}{% if key != "q" and key != "page" %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
+  <label for="table-q" class="sr-only">{% trans "Rechercher" %}</label>
+  <input id="table-q" type="search" name="q" value="{{ request.GET.q }}" placeholder="{{ placeholder|default:'Rechercher…' }}" class="input max-w-xs">
+  <button class="btn-secondary" type="submit"><i data-lucide="search" class="h-4 w-4"></i>{% trans "Rechercher" %}</button>
+</form>

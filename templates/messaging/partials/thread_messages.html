@@ -1,0 +1,12 @@
+{% load i18n %}
+{% for m in thread %}
+<div class="flex {% if m.sender_id == user.pk %}justify-end{% else %}justify-start{% endif %}">
+  <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm {% if m.sender_id == user.pk %}bg-kora-orange text-white rounded-br-md{% else %}bg-white shadow-soft rounded-bl-md{% endif %}">
+    {% if m.attachment %}<a href="{{ m.attachment.url }}" target="_blank" rel="noopener"><img src="{{ m.attachment.url }}" alt="{% trans 'Image jointe' %}" class="mb-1.5 max-h-60 rounded-xl" loading="lazy"></a>{% endif %}
+    {% if m.body %}<p class="whitespace-pre-line break-words">{{ m.body }}</p>{% endif %}
+    <p class="mt-1 text-[11px] {% if m.sender_id == user.pk %}text-white/80{% else %}text-kora-brown/50{% endif %}">{{ m.created_at|date:"j M, H:i" }}{% if m.sender_id == user.pk and m.read_at %} · {% trans "Lu" %}{% endif %}</p>
+  </div>
+</div>
+{% empty %}
+<p class="py-10 text-center text-sm text-kora-brown/60">{% trans "Aucun message pour le moment. Dites bonjour !" %}</p>
+{% endfor %}

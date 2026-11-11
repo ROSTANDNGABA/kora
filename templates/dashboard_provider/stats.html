@@ -1,0 +1,19 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Statistiques" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Statistiques" %}</h1>
+  <nav class="flex gap-2" aria-label="{% trans 'Période' %}">{% for p in periods %}<a href="?periode={{ p }}" class="chip {% if p == days %}chip-active{% endif %}" {% if p == days %}aria-current="page"{% endif %}>{{ p }} {% trans "jours" %}</a>{% endfor %}</nav></div>
+<dl class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Vues du profil" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ totals.views }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Clics WhatsApp" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ totals.clicks }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Demandes reçues" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ totals.requests }}</dd></div>
+  <div class="card p-4"><dt class="text-xs text-kora-brown/60">{% trans "Taux de conversion" %}</dt><dd class="mt-1 text-2xl font-extrabold text-kora-orange-700">{{ totals.conversion }} %</dd><dd class="text-xs text-kora-brown/60">{% trans "contacts / vues" %}</dd></div>
+</dl>
+<section class="card mt-6 p-5" aria-labelledby="h-ev"><h2 id="h-ev" class="text-lg">{% trans "Évolution" %}</h2>{% include "dashboard/_line_chart.html" with chart_id="chart-stats" chart_data_id="chart-stats-data" %}</section>
+{% if rows %}
+<section class="card mt-6 overflow-x-auto" aria-labelledby="h-det"><h2 id="h-det" class="p-5 pb-3 text-lg">{% trans "Détail par jour" %}</h2>
+  <table class="table-kora"><thead><tr><th scope="col">{% trans "Jour" %}</th><th scope="col">{% trans "Vues" %}</th><th scope="col">{% trans "Clics WhatsApp" %}</th><th scope="col">{% trans "Demandes" %}</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.date|date:"d/m/Y" }}</td><td>{{ r.views }}</td><td>{{ r.clicks }}</td><td>{{ r.requests }}</td></tr>{% endfor %}</tbody></table></section>
+{% endif %}
+{% endblock %}

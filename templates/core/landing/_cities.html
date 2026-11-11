@@ -1,0 +1,15 @@
+{% load i18n %}
+<section id="villes" class="scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <h2 class="text-2xl sm:text-3xl">{% trans "Villes disponibles" %}</h2>
+    <p class="mt-1 text-kora-brown/70">{% blocktrans count n=stats.cities %}Kora est présent dans {{ n }} ville.{% plural %}Kora est présent dans {{ n }} villes.{% endblocktrans %}</p>
+    <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {% for c in cities %}
+        <a href="{% url 'catalog:search' %}?ville={{ c.slug }}" data-reveal style="--d: {{ forloop.counter0 }}" class="card card-hover flex items-center gap-3 p-4">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-kora-orange-100 text-kora-orange"><i data-lucide="map-pin" class="h-5 w-5"></i></span>
+          <span class="min-w-0"><span class="block truncate text-sm font-semibold">{{ c.name }}</span><span class="block text-xs text-kora-brown/60">{% blocktrans count n=c.provider_count %}{{ n }} prestataire{% plural %}{{ n }} prestataires{% endblocktrans %}</span></span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>

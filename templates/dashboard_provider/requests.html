@@ -1,0 +1,27 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Demandes" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Demandes reçues" %}</h1>
+<nav class="mt-5 flex gap-2 overflow-x-auto scrollbar-none" aria-label="{% trans 'Filtrer par statut' %}">
+  {% for key, label, count in tabs %}<a href="?statut={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="chip {% if key == current %}chip-active{% endif %}" {% if key == current %}aria-current="page"{% endif %}>{{ label }} <span class="text-xs opacity-80">{{ count }}</span></a>{% endfor %}
+</nav>
+<form method="get" class="mt-4 flex max-w-md gap-2" role="search">
+  <input type="hidden" name="statut" value="{{ current }}">
+  <label class="sr-only" for="rq">{% trans "Rechercher une demande" %}</label>
+  <input id="rq" name="q" value="{{ q }}" class="input" placeholder="{% trans 'Client ou mot-clé' %}">
+  <button class="btn-outline" type="submit">{% trans "Chercher" %}</button>
+</form>
+{% if page_obj.object_list %}
+<ul class="mt-5 space-y-3">
+  {% for r in page_obj %}
+  <li><a href="{% url 'dashboard_provider:request_detail' r.pk %}" class="card card-hover flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <span class="min-w-0"><span class="block font-semibold">{{ r.client.public_name }} <span class="text-xs font-normal text-kora-brown/60">· {{ r.created_at|date:"d/m/Y" }}</span></span>
+      <span class="block truncate text-sm text-kora-brown/70">{{ r.description|truncatechars:110 }}</span>
+      <span class="block text-xs text-kora-brown/60">{{ r.city.name }}{% if r.budget %} · {% trans "Budget" %} {{ r.budget|fcfa }}{% endif %}</span></span>
+    <span class="{{ r.status|request_badge }} shrink-0">{{ r.get_status_display }}</span></a></li>
+  {% endfor %}
+</ul>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="inbox" title="Aucune demande ici" text="Les demandes des clients apparaîtront dans cette liste, vous serez notifié à chaque nouvelle demande." %}</div>{% endif %}
+{% endblock %}

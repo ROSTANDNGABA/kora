@@ -1,0 +1,21 @@
+{% load static %}
+{% comment %}Courbes Chart.js. Paramètres : chart_rows (date, views, clicks, requests), chart_id.{% endcomment %}
+<div class="relative h-64"><canvas id="{{ chart_id }}" role="img" aria-label="Évolution des vues, clics WhatsApp et demandes"></canvas></div>
+{{ chart_rows|json_script:chart_data_id }}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script>
+(function () {
+  var rows = JSON.parse(document.getElementById("{{ chart_data_id }}").textContent);
+  var ctx = document.getElementById("{{ chart_id }}");
+  if (!window.Chart || !ctx) return;
+  function line(label, key, color) {
+    return { label: label, data: rows.map(function (r) { return r[key]; }), borderColor: color, backgroundColor: color, tension: 0.3, pointRadius: 0, borderWidth: 2 };
+  }
+  new Chart(ctx, {
+    type: "line",
+    data: { labels: rows.map(function (r) { return r.date; }), datasets: [line("Vues du profil", "views", "#F36F21"), line("Clics WhatsApp", "clicks", "#5B9E2D"), line("Demandes", "requests", "#4A1F0E")] },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { maxTicksLimit: 8 } } }, plugins: { legend: { position: "bottom" } } }
+  });
+})();
+</script>

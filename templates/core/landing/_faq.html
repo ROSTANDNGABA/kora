@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if faqs %}
+<section id="faq" class="scroll-mt-20 bg-white px-4 py-16 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-3xl">
+    <h2 class="text-center text-2xl sm:text-3xl">{% trans "Questions fréquentes" %}</h2>
+    <div class="mt-8">{% include "cms/partials/faq_list.html" %}</div>
+    <p class="mt-5 text-center text-sm"><a href="{% url 'cms:faq' %}" class="font-semibold text-kora-orange-600 hover:underline">{% trans "Voir toutes les questions" %}</a></p>
+  </div>
+</section>
+{% endif %}

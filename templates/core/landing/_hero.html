@@ -1,0 +1,26 @@
+{% load i18n %}
+<section class="relative overflow-hidden bg-gradient-to-b from-kora-orange-100 via-kora-cream to-kora-cream">
+  <div class="pattern-kora absolute inset-0" aria-hidden="true"></div>
+  <div class="absolute -left-24 top-10 h-72 w-72 rounded-[60%_40%_55%_45%] bg-kora-yellow/30 blur-2xl" aria-hidden="true"></div>
+  <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-10 sm:px-6 sm:pt-16 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:px-8 lg:pb-20">
+    <div>
+      <span class="badge-orange"><i data-lucide="map-pin" class="h-3.5 w-3.5"></i>{% trans "Annuaire des artisans du Cameroun" %}</span>
+      <h1 class="mt-4 text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl">
+        {% trans "Le savoir-faire" %} <span class="bg-gradient-to-r from-kora-orange to-kora-yellow bg-clip-text text-transparent">{% trans "camerounais" %}</span>, {% trans "à portée de main." %}
+      </h1>
+      <p class="mt-5 max-w-xl text-base text-kora-brown/75 sm:text-lg">
+        {% trans "Plombier, couturière, électricien, traiteur : trouvez un professionnel près de chez vous, regardez ses réalisations et lisez les avis avant de le contacter." %}
+      </p>
+      <div class="mt-8 max-w-2xl">{% include "catalog/partials/search_bar.html" with big=True %}</div>
+      {% if popular_searches %}
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium text-kora-brown/60">{% trans "Recherches populaires" %}</span>
+        {% for label, q, city in popular_searches %}
+          <a href="{% url 'catalog:search' %}?q={{ q|urlencode }}&amp;ville={{ city }}" class="chip py-1.5 text-xs sm:text-sm">{{ label }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="hidden lg:block">{% include "core/landing/_hero_art.html" %}</div>
+  </div>
+</section>

@@ -1,0 +1,10 @@
+{% comment %}Liens de sidebar. Paramètres : items, dark.{% endcomment %}
+{% for item in items %}
+<a href="{{ item.url }}" class="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
+   {% if dark %}{% if item.active %}bg-kora-orange text-white{% else %}text-white/80 hover:bg-white/10{% endif %}{% else %}{% if item.active %}bg-kora-orange text-white{% else %}text-kora-brown hover:bg-kora-orange-100{% endif %}{% endif %}"
+   {% if item.active %}aria-current="page"{% endif %} title="{{ item.label }}">
+  <i data-lucide="{{ item.icon }}" class="h-5 w-5 shrink-0"></i>
+  <span class="flex-1 truncate" :class="collapsed && 'lg:hidden'">{{ item.label }}</span>
+  {% if item.badge %}<span class="rounded-full bg-kora-yellow px-2 py-0.5 text-[11px] font-bold leading-none text-kora-brown" :class="collapsed && 'lg:absolute lg:right-1 lg:top-1 lg:px-1.5'">{{ item.badge }}</span>{% endif %}
+</a>
+{% endfor %}

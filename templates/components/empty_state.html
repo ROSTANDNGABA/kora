@@ -1,0 +1,7 @@
+{# État vide. Paramètres : icon, title, text, cta_label, cta_url #}
+<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-kora-brown/20 bg-white px-6 py-12 text-center">
+  <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-kora-orange-100 text-kora-orange"><i data-lucide="{{ icon|default:'inbox' }}" class="h-7 w-7"></i></span>
+  <h3 class="text-lg">{{ title }}</h3>
+  {% if text %}<p class="mt-1 max-w-sm text-sm text-kora-brown/70">{{ text }}</p>{% endif %}
+  {% if cta_url %}<a href="{{ cta_url }}" class="btn-primary mt-5">{{ cta_label }}</a>{% endif %}
+</div>

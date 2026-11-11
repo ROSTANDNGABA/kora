@@ -1,0 +1,45 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Mon profil" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl sm:text-3xl">{% trans "Mon profil" %}</h1>
+  <a href="{{ profile.get_absolute_url }}" target="_blank" rel="noopener" class="btn-outline btn-sm"><i data-lucide="eye" class="h-4 w-4"></i>{% trans "Prévisualiser ma fiche" %}</a>
+</div>
+{% if not profile.is_public %}<p class="mt-2 text-sm text-kora-brown/70">{% trans "Votre fiche n'est visible que par vous tant que le compte n'est pas actif : la prévisualisation est un aperçu privé." %}</p>{% endif %}
+<form method="post" enctype="multipart/form-data" class="mt-6 max-w-3xl space-y-6" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+  <section class="card space-y-5 p-5 sm:p-7"><h2 class="text-lg">{% trans "Informations publiques" %}</h2>
+    <div class="flex items-center gap-4">
+      {% if profile.logo %}<img src="{{ profile.logo.url }}" alt="" class="h-20 w-20 rounded-2xl object-cover" width="80" height="80">{% endif %}
+      <div class="flex-1"><label class="label" for="{{ form.logo.id_for_label }}">{{ form.logo.label }}</label>{{ form.logo }}{% for e in form.logo.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% include "components/form_field.html" with field=form.business_name %}
+      {% include "components/form_field.html" with field=form.activity_type %}
+      {% include "components/form_field.html" with field=form.city %}
+      {% include "components/form_field.html" with field=form.whatsapp %}
+    </div>
+    {% include "components/form_field.html" with field=form.description %}
+  </section>
+  <section class="card space-y-5 p-5 sm:p-7"><h2 class="text-lg">{% blocktrans with name=profile.category.name %}Métier : {{ name }}{% endblocktrans %}</h2>
+    <fieldset><legend class="label">{% trans "Mes spécialités" %}</legend>
+      <div class="grid gap-2 sm:grid-cols-2">{% for s in form.subcategories %}<label class="flex items-center gap-2 text-sm">{{ s.tag }}<span>{{ s.choice_label }}</span></label>{% endfor %}</div>
+      {% for e in form.subcategories.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</fieldset>
+    {% if profile.pending_category %}
+      <p class="rounded-xl bg-kora-orange-100 p-3 text-sm">{% blocktrans with name=profile.pending_category.name %}Changement vers « {{ name }} » en attente de validation.{% endblocktrans %}</p>
+      {% include "components/form_field.html" with field=form.cancel_category_change %}
+    {% endif %}
+    {% include "components/form_field.html" with field=form.new_category %}
+  </section>
+  {% if form.dynamic %}
+  <section class="card space-y-5 p-5 sm:p-7"><h2 class="text-lg">{% trans "Informations propres à votre métier" %}</h2>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% for f in form %}{% if f.name|slice:":6" == "extra_" %}{% include "components/form_field.html" with field=f %}{% endif %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  <div class="flex justify-end"><button type="submit" class="btn-primary">{% trans "Enregistrer mon profil" %}</button></div>
+</form>
+{% endblock %}

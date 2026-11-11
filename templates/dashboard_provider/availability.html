@@ -1,0 +1,30 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Disponibilités et zones" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Disponibilités et zones" %}</h1>
+<form method="post" class="mt-6 max-w-3xl space-y-6" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+  <section class="card space-y-3 p-5 sm:p-7"><h2 class="text-lg">{% trans "Mode congés" %}</h2>
+    {% include "components/form_field.html" with field=form.is_unavailable %}
+    <p class="help-text">{% trans "Votre fiche reste visible avec la mention « Indisponible pour le moment »." %}</p></section>
+  <section class="card p-5 sm:p-7"><h2 class="text-lg">{% trans "Horaires" %}</h2>
+    <ul class="mt-4 space-y-3">
+      {% for d in form.day_rows %}
+      <li class="grid grid-cols-[6rem_1fr] items-center gap-3 sm:grid-cols-[7rem_1fr_1fr_auto]" x-data="{ closed: {% if d.closed.value %}true{% else %}false{% endif %} }">
+        <span class="text-sm font-semibold">{{ d.label }}</span>
+        <div :class="closed && 'opacity-40'"><label class="sr-only" for="{{ d.open.id_for_label }}">{% trans "Ouverture" %}</label>{{ d.open }}{% for e in d.open.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+        <div :class="closed && 'opacity-40'"><label class="sr-only" for="{{ d.close.id_for_label }}">{% trans "Fermeture" %}</label>{{ d.close }}{% for e in d.close.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+        <label class="col-span-2 flex items-center gap-2 text-sm sm:col-span-1"><input type="checkbox" name="{{ d.closed.html_name }}" id="{{ d.closed.id_for_label }}" class="h-4 w-4 rounded accent-kora-orange" {% if d.closed.value %}checked{% endif %} @change="closed = $event.target.checked">{% trans "Fermé" %}</label>
+      </li>
+      {% endfor %}
+    </ul></section>
+  <section class="card space-y-4 p-5 sm:p-7"><h2 class="text-lg">{% blocktrans with city=profile.city.name %}Zone : {{ city }}{% endblocktrans %}</h2>
+    {% include "components/form_field.html" with field=form.home_service %}
+    {% if form.neighborhoods.field.queryset %}
+    <fieldset><legend class="label">{{ form.neighborhoods.label }}</legend><div class="grid gap-2 sm:grid-cols-2">{% for n in form.neighborhoods %}<label class="flex items-center gap-2 text-sm">{{ n.tag }}<span>{{ n.choice_label }}</span></label>{% endfor %}</div></fieldset>
+    {% else %}<p class="text-sm text-kora-brown/60">{% trans "Aucun quartier n'est encore défini pour votre ville." %}</p>{% endif %}
+  </section>
+  <div class="flex justify-end"><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+</form>
+{% endblock %}

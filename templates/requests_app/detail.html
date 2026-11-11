@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% blocktrans with id=req.pk %}Demande n°{{ id }}{% endblocktrans %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+  {% client_subnav %}
+  <a href="{% url 'requests_app:list' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Mes demandes" %}</a>
+  <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl sm:text-3xl">{% blocktrans with id=req.pk %}Demande n°{{ id }}{% endblocktrans %}</h1>
+      <p class="mt-1 text-sm text-kora-brown/70">{% trans "Envoyée à" %} <a href="{{ req.provider.get_absolute_url }}" class="font-semibold text-kora-orange-600 hover:underline">{{ req.provider.business_name }}</a> · {{ req.created_at|date:"j F Y, H:i" }}</p>
+    </div>
+    <span class="{{ req.status|request_badge }}">{{ req.get_status_display }}</span>
+  </div>
+
+  {% if req.status == "CANCELLED" %}
+    <div class="mt-5 rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-700" role="status">{% trans "Cette demande a été annulée." %}</div>
+  {% elif req.status == "REFUSED" %}
+    <div class="mt-5 rounded-2xl bg-red-50 p-4 text-sm text-red-700" role="status"><p class="font-semibold">{% trans "Le prestataire n'a pas pu donner suite." %}</p>{% if req.refusal_reason %}<p class="mt-1">{{ req.refusal_reason }}</p>{% endif %}
+      <a href="{{ req.provider.category.get_absolute_url }}" class="mt-2 inline-block font-semibold underline">{% trans "Voir d'autres prestataires" %}</a></div>
+  {% else %}
+    <ol class="mt-6 grid grid-cols-6 gap-1" aria-label="{% trans 'Avancement' %}">
+      {% for s in steps %}
+      <li class="text-center" {% if s.current %}aria-current="step"{% endif %}>
+        <span class="mx-auto block h-2 rounded-full {% if s.done %}bg-kora-orange{% else %}bg-kora-brown/15{% endif %}"></span>
+        <span class="mt-1.5 block text-[11px] leading-tight {% if s.current %}font-bold text-kora-orange-700{% else %}text-kora-brown/60{% endif %}">{{ s.label }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+
+  <section class="card mt-6 p-5 sm:p-6" aria-labelledby="h-need">
+    <h2 id="h-need" class="text-lg">{% trans "Votre besoin" %}</h2>
+    <p class="mt-2 whitespace-pre-line text-sm leading-relaxed">{{ req.description }}</p>
+    <dl class="mt-4 grid gap-3 border-t border-kora-brown/10 pt-4 text-sm sm:grid-cols-2">
+      <div><dt class="text-xs font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Lieu" %}</dt><dd>{{ req.city.name }}{% if req.address %}, {{ req.address }}{% endif %}</dd></div>
+      {% if req.desired_date %}<div><dt class="text-xs font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Date souhaitée" %}</dt><dd>{{ req.desired_date|date:"l j F Y" }}</dd></div>{% endif %}
+      {% if req.budget %}<div><dt class="text-xs font-semibold uppercase tracking-wide text-kora-brown/60">{% trans "Budget indicatif" %}</dt><dd>{{ req.budget|fcfa }}</dd></div>{% endif %}
+    </dl>
+    {% if photos %}<ul class="mt-4 flex flex-wrap gap-2">{% for ph in photos %}<li><a href="{{ ph.image.url }}" target="_blank" rel="noopener"><img src="{{ ph.image.url }}" alt="{% trans 'Photo jointe' %}" class="h-20 w-20 rounded-xl object-cover" loading="lazy"></a></li>{% endfor %}</ul>{% endif %}
+  </section>
+
+  {% if quotes %}
+  <section class="mt-6" aria-labelledby="h-quotes">
+    <h2 id="h-quotes" class="text-lg">{% trans "Devis reçus" %}</h2>
+    <ul class="mt-3 space-y-3">
+      {% for q in quotes %}
+      <li class="card p-5">
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-2xl font-extrabold text-kora-orange-700">{{ q.amount|fcfa }}</p>
+          <span class="{% if q.status == 'ACCEPTED' %}badge-green{% elif q.status == 'DECLINED' %}badge-red{% else %}badge-yellow{% endif %}">{{ q.get_status_display }}</span>
+        </div>
+        <p class="mt-1 text-sm text-kora-brown/70">{% blocktrans count n=q.delay_days %}Délai : {{ n }} jour{% plural %}Délai : {{ n }} jours{% endblocktrans %}{% if q.valid_until %} · {% blocktrans with date=q.valid_until|date:"j F Y" %}valable jusqu'au {{ date }}{% endblocktrans %}{% endif %}</p>
+        {% if q.message %}<p class="mt-3 whitespace-pre-line text-sm">{{ q.message }}</p>{% endif %}
+        {% if q.status == "PENDING" and req.status == "QUOTED" %}
+        <div class="mt-4 flex flex-col gap-2 sm:flex-row" x-data="{ openDecline: false, openAccept: false }">
+          <button type="button" class="btn-primary" @click="openAccept = true">{% trans "Accepter ce devis" %}</button>
+          <button type="button" class="btn-outline" @click="openDecline = true">{% trans "Refuser" %}</button>
+          {% url 'requests_app:quote_accept' q.pk as accept_url %}{% url 'requests_app:quote_decline' q.pk as decline_url %}
+          {% include "components/modal.html" with title="Accepter ce devis ?" text="Le prestataire sera prévenu et pourra commencer la prestation." confirm_label="Accepter" form_action=accept_url open_var="openAccept" %}
+          {% include "components/modal.html" with title="Refuser ce devis ?" text="Le prestataire pourra vous en proposer un autre." confirm_label="Refuser le devis" form_action=decline_url danger=True open_var="openDecline" %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if req.status == "DONE" %}
+  <section class="card mt-6 p-5 sm:p-6" aria-labelledby="h-review">
+    <h2 id="h-review" class="text-lg">{% trans "Votre avis" %}</h2>
+    {% if review %}
+      <div class="mt-2">{% include "components/stars.html" with rating=review.rating %}</div>
+      {% if review.comment %}<p class="mt-2 whitespace-pre-line text-sm">{{ review.comment }}</p>{% endif %}
+      {% if review.provider_reply %}<div class="mt-3 rounded-xl bg-kora-cream p-3 text-sm"><p class="font-semibold">{% trans "Réponse du prestataire" %}</p><p class="mt-1 whitespace-pre-line">{{ review.provider_reply }}</p></div>{% endif %}
+      {% if review.status == "HIDDEN" %}<p class="mt-2 text-sm font-medium text-red-700">{% trans "Cet avis a été masqué par la modération." %}</p>
+      {% elif review.can_be_edited %}<a href="{% url 'reviews:edit' review.pk %}" class="btn-outline btn-sm mt-3">{% blocktrans with until=review.editable_until|date:"j F à H:i" %}Modifier (jusqu'au {{ until }}){% endblocktrans %}</a>{% endif %}
+    {% else %}
+      <p class="mt-1 text-sm text-kora-brown/70">{% trans "La prestation est terminée. Votre avis aide les autres clients à choisir." %}</p>
+      <a href="{% url 'reviews:create' req.pk %}" class="btn-primary mt-3">{% trans "Donner mon avis" %}</a>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-between" x-data="{ openCancel: false }">
+    <a href="{{ req.provider.get_absolute_url }}" class="btn-outline">{% trans "Voir la fiche du prestataire" %}</a>
+    {% if can_cancel %}
+      <button type="button" class="btn-ghost text-red-600 hover:bg-red-50" @click="openCancel = true">{% trans "Annuler la demande" %}</button>
+      {% url 'requests_app:cancel' req.pk as cancel_url %}
+      {% include "components/modal.html" with title="Annuler cette demande ?" text="Le prestataire en sera informé. Cette action est définitive." confirm_label="Annuler la demande" form_action=cancel_url danger=True open_var="openCancel" %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

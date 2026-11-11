@@ -1,0 +1,41 @@
+{% load i18n %}
+{# Toasts : messages Django au chargement + événement « kora-toast » (HX-Trigger côté serveur). #}
+{{ toast_messages|json_script:"initial-toasts" }}
+<div
+  x-data="toasts()"
+  @kora-toast.window="add($event.detail)"
+  class="pointer-events-none fixed inset-x-0 top-20 z-[90] flex flex-col items-center gap-2 px-4 sm:items-end sm:px-6"
+  aria-live="polite" role="status">
+  <template x-for="t in items" :key="t.id">
+    <div x-show="t.visible" x-transition.opacity.duration.200ms
+         class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl bg-white p-4 shadow-pop ring-1 ring-kora-brown/10">
+      <span class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
+            :class="{'bg-kora-green': t.type==='success','bg-red-500': t.type==='error','bg-kora-yellow': t.type==='warning','bg-kora-orange': t.type==='info'}"></span>
+      <p class="flex-1 text-sm font-medium text-kora-brown" x-text="t.text"></p>
+      <button type="button" class="text-kora-brown/50 hover:text-kora-brown" @click="close(t.id)" aria-label="{% trans 'Fermer' %}">&times;</button>
+    </div>
+  </template>
+</div>
+<script>
+  document.addEventListener("alpine:init", function () {
+    Alpine.data("toasts", function () {
+      return {
+        items: [],
+        n: 0,
+        init() {
+          const el = document.getElementById("initial-toasts");
+          if (el) { try { JSON.parse(el.textContent).forEach((m) => this.add(m)); } catch (e) {} }
+        },
+        add(m) {
+          const t = { id: ++this.n, type: m.type || "info", text: m.text || "", visible: true };
+          this.items.push(t);
+          setTimeout(() => this.close(t.id), 5000);
+        },
+        close(id) {
+          const t = this.items.find((x) => x.id === id);
+          if (t) { t.visible = false; setTimeout(() => { this.items = this.items.filter((x) => x.id !== id); }, 250); }
+        },
+      };
+    });
+  });
+</script>

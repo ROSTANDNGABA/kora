@@ -1,0 +1,17 @@
+{% extends "dashboard_provider/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Paramètres" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Paramètres" %}</h1>
+<form method="post" enctype="multipart/form-data" class="card mt-6 max-w-2xl space-y-5 p-5 sm:p-7" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+  <div class="grid gap-5 sm:grid-cols-2">{% include "components/form_field.html" with field=form.first_name %}{% include "components/form_field.html" with field=form.last_name %}</div>
+  <p class="text-sm text-kora-brown/70">{% trans "E-mail de connexion :" %} <strong>{{ request.user.email }}</strong></p>
+  {% include "components/form_field.html" with field=form.phone %}
+  <div><label class="label" for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>{{ form.avatar }}{% for e in form.avatar.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}</div>
+  {% include "components/form_field.html" with field=form.language %}
+  <div class="flex justify-end"><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+</form>
+<section class="card mt-6 max-w-2xl space-y-3 p-5 sm:p-7"><h2 class="text-lg">{% trans "Sécurité" %}</h2>
+  <a href="{% url 'accounts:password_change' %}" class="btn-outline">{% trans "Changer mon mot de passe" %}</a></section>
+{% endblock %}

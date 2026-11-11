@@ -1,0 +1,24 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block page %}
+<a href="{% url 'dashboard_admin:categories' %}" class="text-sm font-medium text-kora-orange-600 hover:underline">&larr; {% trans "Catégories" %}</a>
+<h1 class="mt-2 text-2xl sm:text-3xl">{{ category.name }}</h1>
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <section class="card p-5" aria-labelledby="h-sub"><div class="flex items-center justify-between"><h2 id="h-sub" class="text-lg">{% trans "Spécialités" %}</h2><a href="{% url 'dashboard_admin:subcategory_new' %}?category={{ category.pk }}" class="btn-outline btn-sm">{% trans "Ajouter" %}</a></div>
+    {% if subcategories %}<ul class="mt-3 divide-y divide-kora-brown/10">{% for s in subcategories %}
+      <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"><span>{{ s.name }} {% if not s.is_active %}<span class="badge-gray">{% trans "Désactivée" %}</span>{% endif %}</span>
+        <span class="flex flex-wrap gap-2"><a href="{% url 'dashboard_admin:subcategory_edit' s.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+        {% url 'dashboard_admin:subcategory_toggle' s.pk as u %}{% include "components/admin_action.html" with label=s.is_active|yesno:"Désactiver,Activer" title="Changer l'état de cette spécialité ?" action=u %}
+        {% url 'dashboard_admin:subcategory_delete' s.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer cette spécialité ?" action=u btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}</span></li>{% endfor %}</ul>
+    {% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucune spécialité." %}</p>{% endif %}</section>
+  <section class="card p-5" aria-labelledby="h-f"><div class="flex items-center justify-between"><h2 id="h-f" class="text-lg">{% trans "Champs spécifiques au métier" %}</h2><a href="{% url 'dashboard_admin:field_new' %}?category={{ category.pk }}" class="btn-outline btn-sm">{% trans "Ajouter un champ" %}</a></div>
+    <p class="mt-1 text-xs text-kora-brown/60">{% trans "Ces champs apparaissent dans le profil des prestataires de cette catégorie." %}</p>
+    {% if fields %}<ul class="mt-3 divide-y divide-kora-brown/10">{% for f in fields %}
+      <li class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"><span>{{ f.label }} <span class="badge-gray">{{ f.get_field_type_display }}</span>{% if f.is_required %} <span class="badge-orange">{% trans "Obligatoire" %}</span>{% endif %}{% if not f.is_active %} <span class="badge-gray">{% trans "Masqué" %}</span>{% endif %}</span>
+        <span class="flex flex-wrap gap-2"><a href="{% url 'dashboard_admin:field_edit' f.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+        {% url 'dashboard_admin:field_toggle' f.pk as u %}{% include "components/admin_action.html" with label=f.is_active|yesno:"Masquer,Afficher" title="Changer l'état de ce champ ?" action=u %}
+        {% url 'dashboard_admin:field_delete' f.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer ce champ ?" text="Les valeurs déjà saisies par les prestataires seront perdues." action=u btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}</span></li>{% endfor %}</ul>
+    {% else %}<p class="mt-3 text-sm text-kora-brown/60">{% trans "Aucun champ spécifique." %}</p>{% endif %}</section>
+</div>
+{% endblock %}

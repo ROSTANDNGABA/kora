@@ -1,0 +1,23 @@
+{% comment %}
+Bouton d'action sensible + modale de confirmation (Alpine). Toute action passe par un POST protégé par CSRF.
+Paramètres : label, title, text, action (URL), btn_class, danger (bool), reason ("required" | "optional" | vide), confirm_label, name (champ du motif, défaut reason)
+{% endcomment %}
+<div x-data="{ open: false }" class="inline-block">
+  <button type="button" class="{{ btn_class|default:'btn-outline btn-sm' }}" @click="open = true">{{ label }}</button>
+  <div x-show="open" x-cloak class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label="{{ title }}" @keydown.escape.window="open = false">
+    <div class="absolute inset-0 bg-kora-brown/50 backdrop-blur-sm" @click="open = false"></div>
+    <form method="post" action="{{ action }}" class="relative w-full max-w-md rounded-t-3xl bg-white p-6 text-left shadow-pop sm:rounded-3xl">
+      {% csrf_token %}<input type="hidden" name="next" value="{{ next_url|default:request.get_full_path }}">
+      <h2 class="text-lg">{{ title }}</h2>
+      {% if text %}<p class="mt-2 text-sm text-kora-brown/70">{{ text }}</p>{% endif %}
+      {% if reason %}
+      <label class="label mt-4" for="r{{ action|slugify }}">{% if reason == "required" %}Motif (obligatoire, transmis à l'intéressé){% else %}Motif (facultatif){% endif %}</label>
+      <textarea id="r{{ action|slugify }}" name="reason" rows="3" maxlength="400" class="input" {% if reason == "required" %}required minlength="5"{% endif %}></textarea>
+      {% endif %}
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="btn-outline" @click="open = false">Annuler</button>
+        <button type="submit" class="{% if danger %}btn-danger{% else %}btn-primary{% endif %}">{{ confirm_label|default:label }}</button>
+      </div>
+    </form>
+  </div>
+</div>

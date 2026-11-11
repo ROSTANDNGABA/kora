@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if filters.q %}{{ filters.q }}{% if filters.city %} à {{ filters.city.name }}{% endif %}{% else %}{% trans "Recherche" %}{% endif %}{% endblock %}
+{% block meta_description %}{% trans "Trouvez un artisan ou un prestataire de services au Cameroun par métier et par ville." %}{% endblock %}
+{% block robots %}{% if has_filters %}noindex,follow{% else %}index,follow{% endif %}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <h1 class="mb-6 text-2xl sm:text-3xl">{% trans "Trouver un prestataire" %}</h1>
+  <div class="grid gap-6 lg:grid-cols-[18rem_1fr]" x-data="{ open: false }">
+    <div>
+      <button type="button" class="btn-outline mb-3 w-full lg:hidden" @click="open = !open" :aria-expanded="open" aria-controls="filters-panel">
+        <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>{% trans "Filtres" %}{% if filters.active_count %} <span class="badge-orange">{{ filters.active_count }}</span>{% endif %}
+      </button>
+      <aside id="filters-panel" class="card p-5 lg:sticky lg:top-20" :class="open ? 'block' : 'hidden lg:block'" aria-label="{% trans 'Filtres de recherche' %}">
+        {% include "catalog/partials/filters.html" %}
+      </aside>
+    </div>
+    <section id="results" class="min-w-0 transition-opacity [&.htmx-request]:opacity-60" aria-label="{% trans 'Résultats' %}">
+      {% include "catalog/partials/results.html" %}
+    </section>
+  </div>
+</div>
+{% endblock %}

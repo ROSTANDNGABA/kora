@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Mes favoris" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+  {% client_subnav %}
+  <h1 class="text-2xl sm:text-3xl">{% trans "Mes favoris" %}</h1>
+  <nav class="mt-4 flex gap-2" aria-label="{% trans 'Onglets' %}">
+    <a href="{% url 'favorites:list' %}" class="chip {% if tab == 'artisans' %}chip-active{% endif %}" {% if tab == 'artisans' %}aria-current="true"{% endif %}>{% trans "Artisans" %} <span class="text-xs opacity-70">{{ providers|length }}</span></a>
+    <a href="{% url 'favorites:list' %}?onglet=recherches" class="chip {% if tab == 'recherches' %}chip-active{% endif %}" {% if tab == 'recherches' %}aria-current="true"{% endif %}>{% trans "Recherches" %} <span class="text-xs opacity-70">{{ searches|length }}</span></a>
+  </nav>
+
+  {% if tab == "artisans" %}
+    {% if providers %}
+      <div class="mt-5 grid gap-4 md:grid-cols-2">{% for p in providers %}{% include "components/provider_card.html" with p=p %}{% endfor %}</div>
+    {% else %}
+      <div class="mt-5">{% url 'catalog:search' as search_url %}{% include "components/empty_state.html" with icon="heart" title="Aucun favori pour le moment" text="Touchez le cœur sur la fiche d'un prestataire pour le retrouver ici." cta_label="Chercher un prestataire" cta_url=search_url %}</div>
+    {% endif %}
+  {% else %}
+    {% if searches %}
+      <ul class="mt-5 space-y-2">
+        {% for s in searches %}
+        <li class="card flex items-center justify-between gap-3 p-4">
+          <a href="{% url 'catalog:search' %}?{{ s.query_string }}" class="min-w-0 flex-1">
+            <span class="block truncate font-semibold">{{ s.label }}</span>
+            <span class="text-xs text-kora-brown/60">{% blocktrans with date=s.created_at|date:"j F Y" %}Enregistrée le {{ date }}{% endblocktrans %}</span>
+          </a>
+          <form method="post" action="{% url 'favorites:delete_search' s.pk %}" hx-post="{% url 'favorites:delete_search' s.pk %}" hx-target="closest li" hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit" class="btn-ghost btn-sm text-red-600 hover:bg-red-50" aria-label="{% blocktrans with label=s.label %}Supprimer la recherche {{ label }}{% endblocktrans %}"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="mt-5">{% url 'catalog:search' as search_url %}{% include "components/empty_state.html" with icon="bookmark" title="Aucune recherche enregistrée" text="Après une recherche, utilisez « Enregistrer cette recherche » pour la retrouver ici." cta_label="Lancer une recherche" cta_url=search_url %}</div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

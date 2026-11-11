@@ -1,0 +1,12 @@
+{% extends "dashboard/shell.html" %}
+{% load i18n dashboard_ui kora_ui %}
+{% block home_url %}{% url 'dashboard_admin:home' %}{% endblock %}
+{% block sidebar_identity %}
+  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-kora-orange text-sm font-bold text-white">{{ user.get_full_name|default:user.email|initials }}</span>
+  <div class="min-w-0" :class="collapsed && 'lg:hidden'">
+    <p class="truncate text-sm font-semibold">{{ user.get_full_name|default:user.email }}</p>
+    <p class="truncate text-xs text-white/60">{% if user.is_superuser %}{% trans "Super-administrateur" %}{% else %}{{ user.groups.all|join:", "|default:_("Administrateur") }}{% endif %}</p>
+  </div>
+{% endblock %}
+{% block sidebar_nav %}{% admin_sidebar as items %}{% include "dashboard/_sidebar_links.html" with items=items %}{% endblock %}
+{% block profile_menu %}<a href="{% url 'accounts:password_change' %}" class="block rounded-xl px-3 py-2 text-sm hover:bg-kora-orange-100">{% trans "Mot de passe" %}</a>{% endblock %}

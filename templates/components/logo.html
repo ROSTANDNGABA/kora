@@ -1,0 +1,9 @@
+{# Logo Kora : cercle orange avec « K » + mot-symbole. Paramètres : size (classes h-*), light (texte clair) #}
+<span class="inline-flex items-center gap-2">
+  <svg class="{{ size|default:'h-9 w-9' }}" viewBox="0 0 64 64" role="img" aria-label="Kora">
+    <circle cx="32" cy="32" r="32" fill="#F36F21"/>
+    <path d="M20 14h6v15l13-15h8L33 31l15 19h-8L28 34v16h-8z" fill="#fff"/>
+    <path d="M14 46c6 6 14 8 22 6" stroke="#F5B800" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </svg>
+  <span class="text-xl font-extrabold tracking-tight {% if light %}text-white{% else %}text-kora-brown{% endif %}">Kora</span>
+</span>

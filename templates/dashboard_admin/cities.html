@@ -1,0 +1,18 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Villes et quartiers" %}{% endblock %}
+{% block page %}
+<div class="flex flex-wrap items-center justify-between gap-3"><h1 class="text-2xl sm:text-3xl">{% trans "Villes et quartiers" %}</h1>
+  <a href="{% url 'dashboard_admin:city_new' %}" class="btn-primary"><i data-lucide="plus" class="h-4 w-4"></i>{% trans "Nouvelle ville" %}</a></div>
+<ul class="mt-6 space-y-4">{% for c in cities %}
+  <li class="card p-5"><div class="flex flex-wrap items-center justify-between gap-3">
+    <div><h2 class="text-lg">{{ c.name }} {% if not c.is_active %}<span class="badge-gray">{% trans "Désactivée" %}</span>{% endif %}</h2><p class="text-sm text-kora-brown/60">{{ c.region|default:"—" }} · {{ c.providers_count }} {% trans "prestataire(s)" %}</p></div>
+    <div class="flex flex-wrap gap-2"><a href="{% url 'dashboard_admin:neighborhood_new' %}?city={{ c.pk }}" class="btn-outline btn-sm">{% trans "Ajouter un quartier" %}</a>
+      <a href="{% url 'dashboard_admin:city_edit' c.pk %}" class="btn-outline btn-sm">{% trans "Modifier" %}</a>
+      {% url 'dashboard_admin:city_toggle' c.pk as u %}{% include "components/admin_action.html" with label=c.is_active|yesno:"Désactiver,Activer" title="Changer l'état de cette ville ?" action=u %}
+      {% url 'dashboard_admin:city_delete' c.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer cette ville ?" text="Impossible si des prestataires y sont rattachés : désactivez-la dans ce cas." action=u btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}</div></div>
+    {% if c.neighborhoods.all %}<ul class="mt-4 flex flex-wrap gap-2">{% for n in c.neighborhoods.all %}
+      <li class="inline-flex items-center gap-1 rounded-full bg-kora-cream px-3 py-1 text-sm {% if not n.is_active %}opacity-50{% endif %}">{{ n.name }}
+        <a href="{% url 'dashboard_admin:neighborhood_edit' n.pk %}" class="text-kora-orange-600 hover:underline" aria-label="{% trans 'Modifier' %} {{ n.name }}"><i data-lucide="pencil" class="h-3.5 w-3.5"></i></a></li>{% endfor %}</ul>{% endif %}
+  </li>{% empty %}<li>{% include "components/empty_state.html" with icon="map-pin" title="Aucune ville" text="Ajoutez une première ville pour que les prestataires puissent s'inscrire." %}</li>{% endfor %}</ul>
+{% endblock %}

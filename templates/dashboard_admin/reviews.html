@@ -1,0 +1,21 @@
+{% extends "dashboard_admin/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Avis et modération" %}{% endblock %}
+{% block page %}
+<h1 class="text-2xl sm:text-3xl">{% trans "Avis et modération" %}</h1>
+<nav class="mt-5 flex flex-wrap gap-2" aria-label="{% trans 'Filtres' %}">{% for v, l in filters %}<a href="?filtre={{ v }}" class="chip {% if v == filtre %}chip-active{% endif %}">{{ l }}</a>{% endfor %}</nav>
+<form method="get" class="mt-4 flex max-w-md gap-2" role="search"><input type="hidden" name="filtre" value="{{ filtre }}"><label class="sr-only" for="q">{% trans "Rechercher" %}</label><input id="q" name="q" type="search" value="{{ request.GET.q }}" class="input" placeholder="{% trans 'Commentaire, prestataire, e-mail' %}"><button class="btn-secondary" type="submit">{% trans "Chercher" %}</button></form>
+{% if page_obj.object_list %}
+<ul class="mt-5 space-y-3">{% for r in page_obj %}
+  <li class="card space-y-2 p-5 {% if r.status == 'HIDDEN' %}opacity-70{% endif %}">
+    <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm">{% include "components/stars.html" with rating=r.rating %} <strong class="ml-1">{{ r.client.get_full_name|default:r.client.email }}</strong> &rarr; <a href="{% url 'dashboard_admin:provider_detail' r.provider_id %}" class="text-kora-orange-700 hover:underline">{{ r.provider.business_name }}</a></p>
+      <p class="flex items-center gap-2 text-xs text-kora-brown/60">{{ r.created_at|date:"d/m/Y" }}{% if r.status == "HIDDEN" %}<span class="badge-gray">{% trans "Masqué" %}</span>{% endif %}{% if r.pending_reports %}<span class="badge-red">{% trans "Signalé" %}</span>{% endif %}</p></div>
+    {% if r.comment %}<p class="text-sm">{{ r.comment }}</p>{% else %}<p class="text-sm italic text-kora-brown/50">{% trans "Sans commentaire" %}</p>{% endif %}
+    <div class="flex flex-wrap gap-2">
+      {% if r.status == "VISIBLE" %}{% url 'dashboard_admin:review_hide' r.pk as u %}{% include "components/admin_action.html" with label="Masquer" title="Masquer cet avis ?" text="Il ne compte plus dans la note. L'auteur est prévenu avec le motif." action=u reason="required" confirm_label="Masquer" danger=True %}
+      {% else %}{% url 'dashboard_admin:review_restore' r.pk as u %}{% include "components/admin_action.html" with label="Rétablir" title="Rétablir cet avis ?" action=u btn_class="btn-primary btn-sm" %}{% endif %}
+      {% url 'dashboard_admin:review_delete' r.pk as u %}{% include "components/admin_action.html" with label="Supprimer" title="Supprimer définitivement cet avis ?" text="Action irréversible." action=u reason="required" btn_class="btn-ghost btn-sm text-red-600 hover:bg-red-50" confirm_label="Supprimer" danger=True %}
+    </div></li>{% endfor %}</ul>
+{% include "components/pagination.html" %}
+{% else %}<div class="mt-6">{% include "components/empty_state.html" with icon="star" title="Aucun avis" text="Aucun avis ne correspond à ce filtre." %}</div>{% endif %}
+{% endblock %}

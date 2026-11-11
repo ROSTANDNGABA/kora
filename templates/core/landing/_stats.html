@@ -1,0 +1,9 @@
+{% load i18n %}
+<section class="bg-kora-brown px-4 py-12 text-white sm:px-6 lg:px-8" aria-label="{% trans 'Kora en chiffres' %}">
+  <dl class="mx-auto grid max-w-5xl grid-cols-2 gap-8 text-center md:grid-cols-4">
+    <div><dd class="order-1 text-4xl font-extrabold text-kora-yellow sm:text-5xl" data-counter="{{ stats.providers }}">{{ stats.providers }}</dd><dt class="mt-1 text-sm text-white/75">{% trans "Prestataires" %}</dt></div>
+    <div><dd class="text-4xl font-extrabold text-kora-yellow sm:text-5xl" data-counter="{{ stats.clients }}">{{ stats.clients }}</dd><dt class="mt-1 text-sm text-white/75">{% trans "Clients inscrits" %}</dt></div>
+    <div><dd class="text-4xl font-extrabold text-kora-yellow sm:text-5xl" data-counter="{{ stats.cities }}">{{ stats.cities }}</dd><dt class="mt-1 text-sm text-white/75">{% trans "Villes" %}</dt></div>
+    <div><dd class="text-4xl font-extrabold text-kora-yellow sm:text-5xl" data-counter="{{ stats.reviews }}">{{ stats.reviews }}</dd><dt class="mt-1 text-sm text-white/75">{% trans "Avis publiés" %}</dt></div>
+  </dl>
+</section>

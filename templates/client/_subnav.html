@@ -1,0 +1,8 @@
+{% load i18n %}
+<nav class="mb-6 hidden gap-1 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-soft md:flex" aria-label="{% trans 'Mon espace' %}">
+  {% for t in tabs %}
+    <a href="{{ t.url }}" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition {% if t.active %}bg-kora-orange text-white{% else %}text-kora-brown hover:bg-kora-orange-100{% endif %}" {% if t.active %}aria-current="page"{% endif %}>
+      <i data-lucide="{{ t.icon }}" class="h-4 w-4"></i>{% trans t.label %}
+    </a>
+  {% endfor %}
+</nav>

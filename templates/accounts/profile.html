@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load i18n kora_ui %}
+{% block title %}{% trans "Mon compte" %}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+  {% client_subnav %}
+  <h1 class="text-2xl sm:text-3xl">{% trans "Mon compte" %}</h1>
+  <form method="post" enctype="multipart/form-data" class="card mt-6 space-y-6 p-5 sm:p-7" novalidate>
+    {% csrf_token %}
+    <div class="flex items-center gap-4">
+      {% if user.avatar %}<img src="{{ user.avatar.url }}" alt="{% trans 'Ma photo de profil' %}" class="h-20 w-20 rounded-full object-cover" width="80" height="80">
+      {% else %}<span class="flex h-20 w-20 items-center justify-center rounded-full bg-kora-orange text-2xl font-bold text-white" aria-hidden="true">{{ user.get_full_name|default:user.email|initials }}</span>{% endif %}
+      <div class="min-w-0 flex-1">
+        <label class="label" for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+        {{ form.avatar }}
+        {% for e in form.avatar.errors %}<p class="field-error" role="alert">{{ e }}</p>{% endfor %}
+        {% if user.avatar %}<label class="mt-2 flex items-center gap-2 text-sm">{{ form.remove_avatar }}{{ form.remove_avatar.label }}</label>{% endif %}
+      </div>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% include "components/form_field.html" with field=form.first_name %}
+      {% include "components/form_field.html" with field=form.last_name %}
+      <div><label class="label" for="email-ro">{% trans "Adresse e-mail" %}</label><input id="email-ro" class="input bg-kora-brown/5" value="{{ user.email }}" readonly aria-describedby="email-help"><p id="email-help" class="help-text">{% trans "L'adresse e-mail identifie votre compte et ne peut pas être modifiée." %}</p></div>
+      {% include "components/form_field.html" with field=form.phone %}
+      {% include "components/form_field.html" with field=form.city %}
+      {% include "components/form_field.html" with field=form.address %}
+      {% include "components/form_field.html" with field=form.language %}
+    </div>
+    <fieldset class="space-y-2"><legend class="label">{% trans "Notifications" %}</legend>
+      {% include "components/form_field.html" with field=form.notify_email %}
+      {% include "components/form_field.html" with field=form.notify_sms %}
+    </fieldset>
+    <div class="flex justify-end"><button type="submit" class="btn-primary">{% trans "Enregistrer" %}</button></div>
+  </form>
+
+  <section class="card mt-6 p-5 sm:p-7" aria-labelledby="h-security">
+    <h2 id="h-security" class="text-lg">{% trans "Sécurité" %}</h2>
+    <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+      <a href="{% url 'accounts:password_change' %}" class="btn-outline">{% trans "Modifier mon mot de passe" %}</a>
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="btn-ghost w-full sm:w-auto">{% trans "Me déconnecter" %}</button></form>
+    </div>
+    <p class="mt-6 border-t border-kora-brown/10 pt-4 text-sm"><a href="{% url 'accounts:delete' %}" class="font-semibold text-red-600 hover:underline">{% trans "Supprimer mon compte" %}</a></p>
+  </section>
+</div>
+{% endblock %}
